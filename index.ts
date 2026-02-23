@@ -1,3 +1,7 @@
+// MUST be the very first import — installs global.localStorage polyfill
+// required by shared-logic hooks (useAuth, useHomePagelogin, etc.)
+import './src/utils/localStorageShim';
+
 import { registerRootComponent } from 'expo';
 
 import App from './App';

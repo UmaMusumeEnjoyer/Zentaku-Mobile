@@ -1,0 +1,15 @@
+{
+  "nav": {
+    "home": "ホーム",
+    "search": "検索",
+    "library": "ライブラリ",
+    "profile": "プロフィール"
+  },
+  "settings": {
+    "title": "設定",
+    "language": "言語",
+    "theme": "テーマ",
+    "dark_mode": "ダークモード",
+    "light_mode": "ライトモード"
+  }
+}

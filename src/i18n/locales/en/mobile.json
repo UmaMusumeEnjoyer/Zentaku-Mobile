@@ -1,0 +1,15 @@
+{
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "library": "Library",
+    "profile": "Profile"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "dark_mode": "Dark Mode",
+    "light_mode": "Light Mode"
+  }
+}
