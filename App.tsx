@@ -27,7 +27,7 @@ import { hydrateLocalStorage } from './src/utils/localStorageShim';
 import { ENV } from './src/utils/env';
 
 import AuthScreen from './src/screens/AuthScreen';
-import HomeLoginScreen from './src/screens/HomeLoginScreen';
+import MainLayout from './src/navigation/MainLayout';
 
 import type { RootStackParamList } from './src/navigation/types';
 
@@ -46,7 +46,16 @@ initSharedLogic({
 });
 
 // ----------------------------------------------------------------
-// Navigator
+// Root Navigator
+//
+// Cấu trúc:
+//   RootStack
+//   ├── Login  → AuthScreen   (chưa đăng nhập)
+//   └── Main   → MainLayout   (có BottomNav, chứa Home/Browse/AnimeList/Profile)
+//
+// React Navigation tự động chuyển hướng khi `user` thay đổi:
+//   - Đăng nhập thành công → user !== null → chỉ còn screen "Main"
+//   - Đăng xuất → user === null → chỉ còn screen "Login"
 // ----------------------------------------------------------------
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -73,11 +82,20 @@ const RootNavigator: React.FC = () => {
         }}
       >
         {user ? (
-          // ---- Authenticated ----
-          <Stack.Screen name="HomeLogin" component={HomeLoginScreen} />
+          // ---- Đã đăng nhập ----
+          <Stack.Screen name="Main" component={MainLayout} />
         ) : (
-          // ---- Unauthenticated ----
-          <Stack.Screen name="Auth" component={AuthScreen} />
+          // ---- Chưa đăng nhập ----
+          <>
+            {/* Guest cũng có thể vào Main (xem anime không cần login) */}
+            <Stack.Screen name="Main" component={MainLayout} />
+            {/* Màn hình Login/Signup */}
+            <Stack.Screen
+              name="Login"
+              component={AuthScreen}
+              options={{ animation: 'slide_from_bottom' }}
+            />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,40 +1,33 @@
-/**
- * src/screens/HomeLoginScreen.tsx
- *
- * Clone HomePagelogin của pbl5_webFE — adapted cho React Native.
- * Sử dụng useHomePagelogin() từ shared-logic:
- *   - Hook đọc localStorage.getItem('username') (hoạt động qua polyfill)
- *   - Trả về: animeLists { watching, completed, onHold, dropped, planning }, loading
- * Hiển thị 5 sections với AnimeSection component.
- */
+// src/screens/HomeLoginScreen.tsx
 import React from 'react';
 import {
-  SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { useHomePagelogin } from '@umamusumeenjoyer/shared-logic';
 
-import AnimeSection from '../components/AnimeSection/AnimeSection';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
-import { typography, spacing, radius } from '../styles/theme';
-import type { ThemeTokens } from '../styles/theme';
-import type { RootStackParamList } from '../navigation/types';
-import { ENV } from '../utils/env';
+import AnimeSection from '../../components/AnimeSection/AnimeSection';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { spacing } from '../../styles/theme'; // Giữ lại spacing vì bạn có dùng inline style ở dưới cùng
+import type { RootStackParamList } from '../../navigation/types';
+import { ENV } from '../../utils/env';
+
+// Import file styles vừa tách
+import { makeStyles } from './HomeLogicScreen.style';
 
 // ----------------------------------------------------------------
 // Types
 // ----------------------------------------------------------------
 
-type Props = NativeStackScreenProps<RootStackParamList, 'HomeLogin'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Main'>;
 
 const DEFAULT_AVATAR = ENV.DEFAULT_AVATAR_URL || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlZjpoc6BcEHSBXN83B8niRWSjcbNE-DArpg&s';
 
@@ -47,14 +40,14 @@ const HomeLoginScreen: React.FC<Props> = ({ navigation }) => {
   const { user, logout } = useAuth();
   const { t } = useTranslation(['HomePageLogin', 'mobile']);
 
-  // ---- Data từ shared-logic ----
   const { animeLists, loading } = useHomePagelogin();
 
+  // Gọi hàm style và truyền theme hiện tại vào
   const s = makeStyles(theme);
 
   const handleLogout = () => {
     logout();
-    navigation.replace('Auth', { initialMode: 'login' });
+    navigation.replace('Login', { initialMode: 'login' });
   };
 
   const username = user?.username ?? (global as any).localStorage?.getItem('username') ?? '';
@@ -144,92 +137,5 @@ const HomeLoginScreen: React.FC<Props> = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-// ----------------------------------------------------------------
-// Styles
-// ----------------------------------------------------------------
-
-const makeStyles = (theme: ThemeTokens) =>
-  StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: theme.bgApp,
-    },
-
-    // Header
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing['4'],
-      paddingVertical: spacing['3'],
-      backgroundColor: theme.bgPanel,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.borderSubtle,
-    },
-    headerTitle: {
-      fontSize: typography.fontSize.xl,
-      fontWeight: typography.fontWeight.bold,
-      color: theme.primary,
-    },
-    headerRight: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing['2'],
-    },
-    iconBtn: {
-      padding: spacing['2'],
-    },
-    iconBtnText: {
-      fontSize: typography.fontSize.lg,
-    },
-    userRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing['2'],
-    },
-    usernameText: {
-      fontSize: typography.fontSize.sm,
-      fontWeight: typography.fontWeight.medium,
-      color: theme.textPrimary,
-      maxWidth: 100,
-    },
-    logoutBtn: {
-      backgroundColor: theme.statusError,
-      paddingHorizontal: spacing['3'],
-      paddingVertical: spacing['1'],
-      borderRadius: radius.full,
-    },
-    logoutBtnText: {
-      fontSize: typography.fontSize.xs,
-      fontWeight: typography.fontWeight.bold,
-      color: '#fff',
-    },
-
-    // Welcome
-    welcomeBanner: {
-      paddingHorizontal: spacing['4'],
-      paddingVertical: spacing['4'],
-      backgroundColor: theme.bgPanel,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.borderSubtle,
-    },
-    welcomeText: {
-      fontSize: typography.fontSize.lg,
-      fontWeight: typography.fontWeight.bold,
-      color: theme.textPrimary,
-    },
-    welcomeSubtext: {
-      fontSize: typography.fontSize.sm,
-      color: theme.textSecondary,
-      marginTop: spacing['1'],
-    },
-
-    // Main content
-    scrollView: { flex: 1 },
-    scrollContent: {
-      paddingTop: spacing['4'],
-    },
-  });
 
 export default HomeLoginScreen;

@@ -34,7 +34,7 @@ import type { RootStackParamList } from '../navigation/types';
 // Types
 // ----------------------------------------------------------------
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Auth'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 type AuthMode = 'login' | 'signup';
 
@@ -98,7 +98,7 @@ const AuthScreen: React.FC<Props> = ({ navigation, route }) => {
     try {
       const result = await login({ email: loginForm.email, password: loginForm.password });
       if (result.success) {
-        navigation.replace('HomeLogin');
+        navigation.replace('Main');
       } else {
         setErrorMsg(result.message);
       }

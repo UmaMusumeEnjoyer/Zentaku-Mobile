@@ -3,13 +3,32 @@
  * Định nghĩa kiểu cho React Navigation Stack
  */
 
-export type RootStackParamList = {
+// ----------------------------------------------------------------
+// Auth Stack — chưa đăng nhập
+// ----------------------------------------------------------------
+export type AuthStackParamList = {
   /** Màn hình login/signup */
-  Auth: { initialMode?: 'login' | 'signup' };
-  /** Màn hình home sau khi đăng nhập */
-  HomeLogin: undefined;
-  /** Sample screen */
+  Login: { initialMode?: 'login' | 'signup' };
+};
+
+// ----------------------------------------------------------------
+// Main Stack — đã đăng nhập hoặc guest (có BottomNav)
+// ----------------------------------------------------------------
+export type MainStackParamList = {
   Home: undefined;
+  Browse: undefined;
+  AnimeList: undefined;
+  Profile: undefined;
+};
+
+// ----------------------------------------------------------------
+// Root Stack — dùng để navigate giữa Auth và Main
+// ----------------------------------------------------------------
+export type RootStackParamList = {
+  /** Wrapper screen chứa BottomNav + tất cả main screens */
+  Main: undefined;
+  /** Màn hình login/signup */
+  Login: { initialMode?: 'login' | 'signup' } | undefined;
 };
 
 declare global {
