@@ -9,8 +9,7 @@ export const createStyles = (theme: any) => StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: theme.bgPanel,
-    borderTopWidth: 1,
-    borderTopColor: theme.border,
+
     paddingVertical: 10,
     paddingBottom: 20, // Safe area padding cho iOS/Android
     position: 'absolute',
@@ -72,7 +71,7 @@ export const createStyles = (theme: any) => StyleSheet.create({
   // Modals chung (Settings, Notifications, User Menu)
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    
     justifyContent: 'flex-end',
   },
   modalContent: {
