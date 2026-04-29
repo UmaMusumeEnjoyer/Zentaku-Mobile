@@ -29,6 +29,8 @@ export type RootStackParamList = {
   Main: undefined;
   /** Màn hình login/signup */
   Login: { initialMode?: 'login' | 'signup' } | undefined;
+  /** Màn hình chi tiết anime */
+  AnimeDetail: { id: string };
 };
 
 declare global {

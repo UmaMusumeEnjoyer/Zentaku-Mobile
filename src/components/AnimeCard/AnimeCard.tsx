@@ -4,7 +4,7 @@
  * Clone webFE AnimeCard — adapted cho React Native.
  * Hiển thị poster, title, episode info và progress.
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Image,
   StyleSheet,
@@ -12,6 +12,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import {
   getAnimeTitle,
@@ -23,6 +25,7 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { typography, spacing, radius } from '../../styles/theme';
 import type { ThemeTokens } from '../../styles/theme';
+import type { RootStackParamList } from '../../navigation/types';
 
 // ----------------------------------------------------------------
 // Types
@@ -33,6 +36,8 @@ interface AnimeCardProps {
   style?: object;
 }
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 // ----------------------------------------------------------------
 // Component
 // ----------------------------------------------------------------
@@ -40,6 +45,7 @@ interface AnimeCardProps {
 const AnimeCard: React.FC<AnimeCardProps> = ({ anime, style }) => {
   const { theme } = useTheme();
   const { i18n } = useTranslation();
+  const navigation = useNavigation<NavigationProp>();
   // Ép kiểu để tránh lỗi — i18n.language có thể là 'en' | 'jp'
   const lang = (i18n.language === 'jp' ? 'jp' : 'en') as 'en' | 'jp';
 
@@ -55,8 +61,14 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, style }) => {
       ? Math.min(anime.episode_progress / anime.episodes, 1)
       : null;
 
+  const handlePress = useCallback(() => {
+    if (linkId) {
+      navigation.navigate('AnimeDetail', { id: String(linkId) });
+    }
+  }, [linkId, navigation]);
+
   return (
-    <TouchableOpacity style={[s.card, style]} activeOpacity={0.85}>
+    <TouchableOpacity style={[s.card, style]} activeOpacity={0.85} onPress={handlePress}>
       {/* ---- Thumbnail ---- */}
       <View style={s.imageWrapper}>
         {anime.cover_image ? (

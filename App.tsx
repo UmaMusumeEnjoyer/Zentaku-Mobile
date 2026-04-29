@@ -28,6 +28,7 @@ import { ENV } from './src/utils/env';
 
 import AuthScreen from './src/screens/AuthScreen';
 import MainLayout from './src/navigation/MainLayout';
+import AnimeDetailScreen from './src/screens/AnimeDetailScreen';
 
 import type { RootStackParamList } from './src/navigation/types';
 
@@ -83,7 +84,10 @@ const RootNavigator: React.FC = () => {
       >
         {user ? (
           // ---- Đã đăng nhập ----
-          <Stack.Screen name="Main" component={MainLayout} />
+          <>
+            <Stack.Screen name="Main" component={MainLayout} />
+            <Stack.Screen name="AnimeDetail" component={AnimeDetailScreen} />
+          </>
         ) : (
           // ---- Chưa đăng nhập ----
           <>
@@ -95,6 +99,8 @@ const RootNavigator: React.FC = () => {
               component={AuthScreen}
               options={{ animation: 'slide_from_bottom' }}
             />
+            {/* Chi tiết anime — xem không cần đăng nhập */}
+            <Stack.Screen name="AnimeDetail" component={AnimeDetailScreen} />
           </>
         )}
       </Stack.Navigator>
