@@ -55,7 +55,6 @@ const BottomNav: React.FC = () => {
     isDropdownOpen,
     isSearchModalOpen,
     isNotiModalOpen,
-    isSettingsModalOpen,
     notifications,
     notificationCount,
     toggleDropdown,
@@ -63,8 +62,6 @@ const BottomNav: React.FC = () => {
     closeSearchModal,
     openNotificationModal,
     closeNotificationModal,
-    openSettingsModal,
-    closeSettingsModal,
     formatDateTime,
     getRelativeTime,
     getAvatarUrl
@@ -116,6 +113,14 @@ const BottomNav: React.FC = () => {
           <Compass color={isActive('Browse') ? theme.primary : theme.textSecondary} size={24} />
           <Text style={[styles.navText, isActive('Browse') && styles.navTextActive]}>
             {t('Header:navigation.browse')}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Nút Settings — luôn hiển thị cho cả guest và user */}
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Main', { screen: 'Settings' })}>
+          <Settings color={isActive('Settings') ? theme.primary : theme.textSecondary} size={24} />
+          <Text style={[styles.navText, isActive('Settings') && styles.navTextActive]}>
+            {t('Header:user_menu.settings')}
           </Text>
         </TouchableOpacity>
 
@@ -188,7 +193,7 @@ const BottomNav: React.FC = () => {
                 )}
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.menuItem} onPress={openSettingsModal}>
+              <TouchableOpacity style={styles.menuItem} onPress={() => { toggleDropdown(); navigation.navigate('Main', { screen: 'Settings' }); }}>
                 <Settings color={theme.textSecondary} size={20} />
                 <Text style={styles.menuItemText}>{t('Header:user_menu.settings')}</Text>
               </TouchableOpacity>
@@ -246,72 +251,6 @@ const BottomNav: React.FC = () => {
         </TouchableOpacity>
       </Modal>
 
-      {/* Settings Modal */}
-      <Modal visible={isSettingsModalOpen} transparent animationType="slide">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={closeSettingsModal}>
-          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('Header:settings.title')}</Text>
-              <TouchableOpacity onPress={closeSettingsModal} style={styles.closeBtn}>
-                <X color={theme.textSecondary} size={24} />
-              </TouchableOpacity>
-            </View>
-            <ScrollView contentContainerStyle={styles.settingsBody}>
-              {/* Theme Section */}
-              <View style={styles.settingsSection}>
-                <Text style={styles.settingsSectionTitle}>{t('Header:settings.theme.title')}</Text>
-                <Text style={styles.settingsSectionDesc}>{t('Header:settings.theme.description')}</Text>
-                <View style={styles.settingsOptions}>
-                  <TouchableOpacity 
-                    style={[styles.settingsBtn, themeMode === 'dark' && styles.settingsBtnActive]} 
-                    onPress={() => themeMode === 'light' && toggleTheme()}
-                  >
-                    <Moon color={themeMode === 'dark' ? theme.btnPrimaryText : theme.textSecondary} size={20} />
-                    <Text style={[styles.settingsBtnText, themeMode === 'dark' && styles.settingsBtnTextActive]}>
-                      {t('Header:settings.theme.dark')}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.settingsBtn, themeMode === 'light' && styles.settingsBtnActive]} 
-                    onPress={() => themeMode === 'dark' && toggleTheme()}
-                  >
-                    <Sun color={themeMode === 'light' ? theme.btnPrimaryText : theme.textSecondary} size={20} />
-                    <Text style={[styles.settingsBtnText, themeMode === 'light' && styles.settingsBtnTextActive]}>
-                      {t('Header:settings.theme.light')}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Language Section */}
-              <View style={styles.settingsSection}>
-                <Text style={styles.settingsSectionTitle}>{t('Header:settings.language.title')}</Text>
-                <Text style={styles.settingsSectionDesc}>{t('Header:settings.language.description')}</Text>
-                <View style={styles.settingsOptions}>
-                  <TouchableOpacity 
-                    style={[styles.settingsBtn, i18n.language === 'en' && styles.settingsBtnActive]} 
-                    onPress={() => handleLanguageChange('en')}
-                  >
-                    <Globe color={i18n.language === 'en' ? theme.btnPrimaryText : theme.textSecondary} size={20} />
-                    <Text style={[styles.settingsBtnText, i18n.language === 'en' && styles.settingsBtnTextActive]}>
-                      English (UK)
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.settingsBtn, i18n.language === 'jp' && styles.settingsBtnActive]} 
-                    onPress={() => handleLanguageChange('jp')}
-                  >
-                    <Globe color={i18n.language === 'jp' ? theme.btnPrimaryText : theme.textSecondary} size={20} />
-                    <Text style={[styles.settingsBtnText, i18n.language === 'jp' && styles.settingsBtnTextActive]}>
-                      日本語 (JP)
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
     </>
   );
 };

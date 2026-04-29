@@ -24,6 +24,7 @@ import HomeScreen from '../screens/HomeScreen';
 import BrowseScreen from '../screens/BrowseScreen';
 import AnimeListScreen from '../screens/AnimeListScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 import BottomNav from '../components/Navigation/Navigation';
 import { useAuth } from '../context/AuthContext';
 import HomeLoginScreen from '../screens/HomeScreen/HomeLoginScreen';
@@ -59,6 +60,7 @@ const MainLayout: React.FC = () => {
             nhưng vẫn đăng ký để Navigation.tsx không throw lỗi navigate */}
         <Inner.Screen name="AnimeList" component={AnimeListScreen} />
         <Inner.Screen name="Profile" component={ProfileScreen} />
+        <Inner.Screen name="Settings" component={SettingsScreen} />
       </Inner.Navigator>
 
       {/* BottomNav — absolute, hiển thị trên tất cả screen bên trong */}

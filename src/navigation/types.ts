@@ -19,6 +19,7 @@ export type MainStackParamList = {
   Browse: undefined;
   AnimeList: undefined;
   Profile: undefined;
+  Settings: undefined;
 };
 
 // ----------------------------------------------------------------

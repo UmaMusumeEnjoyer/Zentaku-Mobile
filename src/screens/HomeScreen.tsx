@@ -95,62 +95,6 @@ const HomeScreen: React.FC = () => {
           <Text style={s.subtitle}>{t('greeting', { ns: 'HomePage', name: 'User' })}</Text>
         </View>
 
-        {/* ---- Controls: Theme + Language ---- */}
-        <View style={s.controlsCard}>
-          <Text style={s.sectionTitle}>{t('settings.title', { ns: 'mobile' })}</Text>
-
-          {/* Theme toggle */}
-          <View style={s.controlRow}>
-            <Text style={s.controlLabel}>{t('settings.theme', { ns: 'mobile' })}</Text>
-            <TouchableOpacity
-              style={[s.toggleBtn, { backgroundColor: theme.btnPrimaryBg }]}
-              onPress={toggleTheme}
-              activeOpacity={0.75}
-            >
-              <Text style={s.toggleBtnText}>
-                {themeMode === 'dark'
-                  ? t('settings.light_mode', { ns: 'mobile' })
-                  : t('settings.dark_mode', { ns: 'mobile' })}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Language toggle */}
-          <View style={s.controlRow}>
-            <Text style={s.controlLabel}>{t('settings.language', { ns: 'mobile' })}</Text>
-            <View style={s.langBtns}>
-              {(Object.keys(languages) as LangCode[]).map((code) => {
-                const isActive = language === code;
-                return (
-                  <TouchableOpacity
-                    key={String(code)}
-                    style={[
-                      s.langBtn,
-                      isActive ? s.langBtnActive : s.langBtnInactive,
-                    ]}
-                    onPress={() => setLanguage(code)}
-                    activeOpacity={0.75}
-                  >
-                    <Text
-                      style={[
-                        s.langBtnText,
-                        { color: isActive ? theme.textOnPrimary : theme.textPrimary },
-                      ]}
-                    >
-                      {languages[code].nativeLabel}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          {/* Current state display */}
-          <View style={s.stateRow}>
-            <Badge label={`Mode: ${themeMode}`} theme={theme} variant="primary" />
-            <Badge label={`Lang: ${String(language)}`} theme={theme} variant="success" />
-          </View>
-        </View>
 
         {/* ---- Trending Section ---- */}
         <View style={s.section}>
