@@ -1,27 +1,52 @@
 /**
  * CharacterCard — Displays character + voice actor info
  * Mirrors web CharacterCard.tsx
+ *
+ * Press character side → CharacterDetail screen
+ * Press voice actor side → StaffDetail screen
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { Character } from '@umamusumeenjoyer/shared-logic';
 import { useTheme } from '../../../context/ThemeContext';
 import { typography, spacing, radius } from '../../../styles/theme';
 import type { ThemeTokens } from '../../../styles/theme';
+import type { RootStackParamList } from '../../../navigation/types';
 
 interface CharacterCardProps {
   character: Character;
 }
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 const CharacterCard: React.FC<CharacterCardProps> = ({ character }) => {
   const { theme } = useTheme();
+  const navigation = useNavigation<NavigationProp>();
   const s = makeStyles(theme);
   const voiceActor = character.voice_actors?.[0];
+
+  const handleCharacterPress = useCallback(() => {
+    if (character.id) {
+      navigation.navigate('CharacterDetail', { id: String(character.id) });
+    }
+  }, [character.id, navigation]);
+
+  const handleVoiceActorPress = useCallback(() => {
+    if (voiceActor?.id) {
+      navigation.navigate('StaffDetail', { id: String(voiceActor.id) });
+    }
+  }, [voiceActor?.id, navigation]);
 
   return (
     <View style={s.card}>
       {/* Character side */}
-      <TouchableOpacity style={s.cardLink} activeOpacity={0.7}>
+      <TouchableOpacity
+        style={s.cardLink}
+        activeOpacity={0.7}
+        onPress={handleCharacterPress}
+      >
         <View style={s.personInfo}>
           <Image
             source={{ uri: character.image }}
@@ -39,7 +64,11 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character }) => {
 
       {/* Voice Actor side */}
       {voiceActor && (
-        <TouchableOpacity style={[s.cardLink, s.vaPart]} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={[s.cardLink, s.vaPart]}
+          activeOpacity={0.7}
+          onPress={handleVoiceActorPress}
+        >
           <View style={[s.personInfo, s.vaInfo]}>
             <View style={[s.personDetails, s.vaDetails]}>
               <Text style={s.personName} numberOfLines={2}>
@@ -120,3 +149,4 @@ const makeStyles = (theme: ThemeTokens) =>
   });
 
 export default CharacterCard;
+

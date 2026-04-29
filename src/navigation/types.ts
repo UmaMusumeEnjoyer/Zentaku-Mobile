@@ -31,6 +31,10 @@ export type RootStackParamList = {
   Login: { initialMode?: 'login' | 'signup' } | undefined;
   /** Màn hình chi tiết anime */
   AnimeDetail: { id: string };
+  /** Màn hình chi tiết character */
+  CharacterDetail: { id: string };
+  /** Màn hình chi tiết staff/voice actor */
+  StaffDetail: { id: string };
 };
 
 declare global {
