@@ -33,6 +33,7 @@ import CharacterScreen from './src/screens/CharacterScreen';
 import StaffScreen from './src/screens/StaffScreen';
 
 import type { RootStackParamList } from './src/navigation/types';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // ----------------------------------------------------------------
 // initSharedLogic — gọi một lần khi module được load
@@ -142,15 +143,17 @@ const HydrationGate: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
 export default function App() {
   return (
-    <HydrationGate>
-      <ThemeProvider>
-        <LanguageProvider>
-          <AuthProvider>
-            <RootNavigator />
-          </AuthProvider>
-        </LanguageProvider>
-      </ThemeProvider>
-    </HydrationGate>
+    <SafeAreaProvider>
+      <HydrationGate>
+        <ThemeProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <RootNavigator />
+            </AuthProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+      </HydrationGate>
+    </SafeAreaProvider>
   );
 }
 
