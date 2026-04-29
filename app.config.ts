@@ -17,6 +17,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic', // supports light/dark
   newArchEnabled: true,
+  plugins: ['expo-video'],
   splash: {
     image: './assets/splash-icon.png',
     resizeMode: 'contain',

@@ -29,6 +29,7 @@ import { ENV } from './src/utils/env';
 import AuthScreen from './src/screens/AuthScreen';
 import MainLayout from './src/navigation/MainLayout';
 import AnimeDetailScreen from './src/screens/AnimeDetailScreen';
+import AnimeWatchScreen from './src/screens/AnimeWatchScreen';
 import CharacterScreen from './src/screens/CharacterScreen';
 import StaffScreen from './src/screens/StaffScreen';
 
@@ -90,6 +91,7 @@ const RootNavigator: React.FC = () => {
           <>
             <Stack.Screen name="Main" component={MainLayout} />
             <Stack.Screen name="AnimeDetail" component={AnimeDetailScreen} />
+            <Stack.Screen name="AnimeWatch" component={AnimeWatchScreen} />
             <Stack.Screen name="CharacterDetail" component={CharacterScreen} />
             <Stack.Screen name="StaffDetail" component={StaffScreen} />
           </>
@@ -106,6 +108,7 @@ const RootNavigator: React.FC = () => {
             />
             {/* Chi tiết anime — xem không cần đăng nhập */}
             <Stack.Screen name="AnimeDetail" component={AnimeDetailScreen} />
+            <Stack.Screen name="AnimeWatch" component={AnimeWatchScreen} />
             <Stack.Screen name="CharacterDetail" component={CharacterScreen} />
             <Stack.Screen name="StaffDetail" component={StaffScreen} />
           </>

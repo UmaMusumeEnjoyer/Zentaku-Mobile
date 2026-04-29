@@ -52,7 +52,7 @@ const BANNER_HEIGHT = 200;
 const AnimeDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { id } = route.params;
   const { theme, themeMode } = useTheme();
-  const { t } = useTranslation(['MainContentArea', 'common']);
+  const { t } = useTranslation(['MainContentArea', 'common', 'AnimeModal']);
   const { anime, loading, error, hasBanner, staffList, characterList, stats } = useAnimeDetail(id);
 
   const s = makeStyles(theme);
@@ -133,6 +133,14 @@ const AnimeDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={s.contentWrapper}>
           {/* Summary: Cover + Title + Description */}
           <SummarySection anime={anime as any} hasBanner={hasBanner} />
+
+          <TouchableOpacity
+            style={s.watchButton}
+            onPress={() => navigation.navigate('AnimeWatch', { id })}
+            activeOpacity={0.8}
+          >
+            <Text style={s.watchButtonText}>{t('AnimeModal:Watch', { defaultValue: 'Watch' })}</Text>
+          </TouchableOpacity>
 
           {/* Info Sidebar: Horizontal scroll */}
           <View style={s.section}>
@@ -258,6 +266,21 @@ const makeStyles = (theme: ThemeTokens) =>
     },
     section: {
       marginTop: spacing['5'],
+    },
+
+    watchButton: {
+      marginTop: spacing['4'],
+      backgroundColor: theme.btnPrimaryBg,
+      paddingVertical: spacing['3'],
+      borderRadius: radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    watchButtonText: {
+      color: theme.btnPrimaryText,
+      fontSize: typography.fontSize.base,
+      fontWeight: typography.fontWeight.bold,
+      letterSpacing: 0.3,
     },
 
     bottomSpacer: {
