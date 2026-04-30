@@ -3,6 +3,8 @@
  * Định nghĩa kiểu cho React Navigation Stack
  */
 
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
 // ----------------------------------------------------------------
 // Auth Stack — chưa đăng nhập
 // ----------------------------------------------------------------
@@ -17,6 +19,7 @@ export type AuthStackParamList = {
 export type MainStackParamList = {
   Home: undefined;
   Browse: undefined;
+  AnimeSearch: undefined;
   AnimeList: undefined;
   Profile: undefined;
   Settings: undefined;
@@ -27,7 +30,7 @@ export type MainStackParamList = {
 // ----------------------------------------------------------------
 export type RootStackParamList = {
   /** Wrapper screen chứa BottomNav + tất cả main screens */
-  Main: undefined;
+  Main: NavigatorScreenParams<MainStackParamList> | undefined;
   /** Màn hình login/signup */
   Login: { initialMode?: 'login' | 'signup' } | undefined;
   /** Màn hình chi tiết anime */

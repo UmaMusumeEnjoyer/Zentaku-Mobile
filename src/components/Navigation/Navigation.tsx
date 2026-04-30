@@ -29,6 +29,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useHeader } from '@umamusumeenjoyer/shared-logic';
 import { createStyles } from './Navigation.style';
+import type { MainStackParamList } from '../../navigation/types';
 
 // Tạm thời mock Component SearchModal nếu chưa chuyển đổi
 const GlobalSearchModal = ({ isOpen, onClose }: any) => null;
@@ -83,6 +84,29 @@ const BottomNav: React.FC = () => {
     navigation.getParent()?.navigate('Login' as never);
   };
 
+  // Helper: navigate to a screen within the Main inner navigator.
+  // Some contexts may resolve to a navigator that doesn't directly expose inner routes,
+  // so route via Root -> Main to ensure the inner screen exists.
+  const navigateToMainScreen = (screenName: keyof MainStackParamList) => {
+    // BottomNav is rendered inside MainLayout (a Root 'Main' screen),
+    // and useNavigation() here returns the Root navigator. To target
+    // Inner navigator screens, always navigate to Root.Main with a
+    // nested screen param.
+    navigation.navigate('Main', { screen: screenName });
+  };
+
+  const getActiveMainRoute = (): keyof MainStackParamList | null => {
+    const state = navigation.getState?.();
+    if (!state?.routes?.length) return null;
+
+    const activeRoot = state.routes[state.index ?? 0] as any;
+    const nestedState = activeRoot?.state;
+    if (!nestedState?.routes?.length) return null;
+
+    const activeInner = nestedState.routes[nestedState.index ?? 0];
+    return (activeInner?.name as keyof MainStackParamList) ?? null;
+  };
+
   const handleLanguageChange = (lang: string) => {
     i18n.changeLanguage(lang);
   };
@@ -95,13 +119,14 @@ const BottomNav: React.FC = () => {
   };
 
   // Hàm helper để check tab đang active
-  const isActive = (routeName: string) => route.name === routeName;
+  const activeMainRoute = getActiveMainRoute();
+  const isActive = (routeName: keyof MainStackParamList) => activeMainRoute === routeName || route.name === routeName;
 
   return (
     <>
       <View style={styles.bottomNavContainer}>
         {/* Nút Home */}
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigateToMainScreen('Home')}>
           <Home color={isActive('Home') ? theme.primary : theme.textSecondary} size={24} />
           <Text style={[styles.navText, isActive('Home') && styles.navTextActive]}>
             {t('Header:navigation.home')}
@@ -109,15 +134,23 @@ const BottomNav: React.FC = () => {
         </TouchableOpacity>
 
         {/* Nút Browse */}
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Browse')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigateToMainScreen('Browse')}>
           <Compass color={isActive('Browse') ? theme.primary : theme.textSecondary} size={24} />
           <Text style={[styles.navText, isActive('Browse') && styles.navTextActive]}>
             {t('Header:navigation.browse')}
           </Text>
         </TouchableOpacity>
 
+        {/* Nút Search */}
+        <TouchableOpacity style={styles.navItem} onPress={() => navigateToMainScreen('AnimeSearch')}>
+          <Search color={isActive('AnimeSearch') ? theme.primary : theme.textSecondary} size={24} />
+          <Text style={[styles.navText, isActive('AnimeSearch') && styles.navTextActive]}>
+            {t('Header:navigation.search')}
+          </Text>
+        </TouchableOpacity>
+
         {/* Nút Settings — luôn hiển thị cho cả guest và user */}
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Main', { screen: 'Settings' })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigateToMainScreen('Settings')}>
           <Settings color={isActive('Settings') ? theme.primary : theme.textSecondary} size={24} />
           <Text style={[styles.navText, isActive('Settings') && styles.navTextActive]}>
             {t('Header:user_menu.settings')}
@@ -127,7 +160,7 @@ const BottomNav: React.FC = () => {
         {isAuthenticated ? (
           <>
             {/* Nút Anime List */}
-            <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('AnimeList')}>
+            <TouchableOpacity style={styles.navItem} onPress={() => navigateToMainScreen('AnimeList')}>
               <ListVideo color={isActive('AnimeList') ? theme.primary : theme.textSecondary} size={24} />
               <Text style={[styles.navText, isActive('AnimeList') && styles.navTextActive]}>
                 {t('Header:navigation.anime_list')}
@@ -173,7 +206,7 @@ const BottomNav: React.FC = () => {
               </TouchableOpacity>
             </View>
             <View style={styles.menuList}>
-              <TouchableOpacity style={styles.menuItem} onPress={() => { toggleDropdown(); navigation.navigate('Profile'); }}>
+              <TouchableOpacity style={styles.menuItem} onPress={() => { toggleDropdown(); navigateToMainScreen('Profile'); }}>
                 <User color={theme.textSecondary} size={20} />
                 <Text style={styles.menuItemText}>{t('Header:user_menu.profile')}</Text>
               </TouchableOpacity>
@@ -193,7 +226,7 @@ const BottomNav: React.FC = () => {
                 )}
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.menuItem} onPress={() => { toggleDropdown(); navigation.navigate('Main', { screen: 'Settings' }); }}>
+              <TouchableOpacity style={styles.menuItem} onPress={() => { toggleDropdown(); navigateToMainScreen('Settings'); }}>
                 <Settings color={theme.textSecondary} size={20} />
                 <Text style={styles.menuItemText}>{t('Header:user_menu.settings')}</Text>
               </TouchableOpacity>

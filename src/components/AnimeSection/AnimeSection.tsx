@@ -27,6 +27,8 @@ interface NativeAnimeSectionProps {
   animeList: AnimeData[];
   isLoading?: boolean;
   emptyMessage?: string;
+  onViewAll?: () => void;
+  viewAllLabel?: string;
 }
 
 const AnimeSection: React.FC<NativeAnimeSectionProps> = ({
@@ -34,6 +36,8 @@ const AnimeSection: React.FC<NativeAnimeSectionProps> = ({
   animeList,
   isLoading,
   emptyMessage,
+  onViewAll,
+  viewAllLabel,
 }) => {
   const { theme } = useTheme();
   const { t } = useTranslation(['AnimeSection', 'mobile']);
@@ -73,13 +77,19 @@ const AnimeSection: React.FC<NativeAnimeSectionProps> = ({
       <View style={s.headerRow}>
         <View style={s.titleAccent} />
         <Text style={s.sectionTitle}>{title}</Text>
-        {animeList.length > INITIAL_DISPLAY_COUNT && (
+        {onViewAll ? (
+          <TouchableOpacity onPress={onViewAll} style={s.showMoreBtn}>
+            <Text style={[s.showMoreText, { color: theme.primary }]}>
+              {viewAllLabel ?? t('common:buttons.view_all', 'View All')}
+            </Text>
+          </TouchableOpacity>
+        ) : animeList.length > INITIAL_DISPLAY_COUNT ? (
           <TouchableOpacity onPress={() => setShowAll((p) => !p)} style={s.showMoreBtn}>
             <Text style={[s.showMoreText, { color: theme.primary }]}>
               {showAll ? t('AnimeSection:show_less') : t('AnimeSection:show_more')}
             </Text>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
 
       {/* ---- Cards ---- */}

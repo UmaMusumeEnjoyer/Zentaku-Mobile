@@ -25,6 +25,7 @@ import BrowseScreen from '../screens/BrowseScreen';
 import AnimeListScreen from '../screens/AnimeListScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import AnimeSearchScreen from '../screens/AnimeSearchScreen';
 import BottomNav from '../components/Navigation/Navigation';
 import { useAuth } from '../context/AuthContext';
 import HomeLoginScreen from '../screens/HomeScreen/HomeLoginScreen';
@@ -56,6 +57,7 @@ const MainLayout: React.FC = () => {
           children={(props) => user ? <HomeLoginScreen {...props as any} /> : <HomeScreen {...props as any} />}
         />
         <Inner.Screen name="Browse" component={BrowseScreen} />
+        <Inner.Screen name="AnimeSearch" component={AnimeSearchScreen} />
         {/* AnimeList và Profile chỉ hữu ích khi đã đăng nhập,
             nhưng vẫn đăng ký để Navigation.tsx không throw lỗi navigate */}
         <Inner.Screen name="AnimeList" component={AnimeListScreen} />
