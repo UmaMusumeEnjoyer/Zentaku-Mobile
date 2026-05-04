@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../context/ThemeContext';
 import { typography, spacing, radius } from '../../../styles/theme';
 import type { ThemeTokens } from '../../../styles/theme';
+import AnimeModal from './AnimeModal';
 
 const BRAND_COLOR = '#3DB4F2';
 const BRAND_COLOR_LIGHT = '#6bccf7';
@@ -92,6 +93,16 @@ const SummarySection: React.FC<SummarySectionProps> = ({ anime, hasBanner }) => 
           </>
         ) : null}
       </View>
+
+      {/* AnimeModal - Opened when button clicked */}
+      <AnimeModal
+        visible={isModalOpen}
+        anime={anime}
+        initialData={currentStatusData}
+        onClose={handleCloseModal}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
     </View>
   );
 };
