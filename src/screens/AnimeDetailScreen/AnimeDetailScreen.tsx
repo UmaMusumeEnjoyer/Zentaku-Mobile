@@ -11,7 +11,7 @@
  *   Characters → Staff → Rankings → StatusDistribution →
  *   ScoreDistribution
  */
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -43,6 +43,7 @@ import StaffSection from './components/StaffSection';
 import RankingsSection from './components/RankingsSection';
 import StatusDistribution from './components/StatusDistribution';
 import ScoreDistribution from './components/ScoreDistribution';
+import { Info, Users, Wand2, BarChart2, MessageSquare, Play } from 'lucide-react-native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AnimeDetail'>;
 
@@ -54,6 +55,7 @@ const AnimeDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { theme, themeMode } = useTheme();
   const { t } = useTranslation(['MainContentArea', 'common', 'AnimeModal']);
   const { anime, loading, error, hasBanner, staffList, characterList, stats } = useAnimeDetail(id);
+  const [activeTab, setActiveTab] = useState<'info' | 'characters' | 'staff' | 'stats' | 'reviews'>('info');
 
   const s = makeStyles(theme);
 
@@ -134,53 +136,101 @@ const AnimeDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           {/* Summary: Cover + Title + Description */}
           <SummarySection anime={anime as any} hasBanner={hasBanner} />
 
-          <TouchableOpacity
-            style={s.watchButton}
-            onPress={() => navigation.navigate('AnimeWatch', { id })}
-            activeOpacity={0.8}
+          {/* ── Tabs Navigation ── */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={s.tabContainer}
           >
-            <Text style={s.watchButtonText}>{t('AnimeModal:Watch', { defaultValue: 'Watch' })}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.tabButton, activeTab === 'info' && s.activeTabButton]}
+              onPress={() => setActiveTab('info')}
+              activeOpacity={0.8}
+            >
+              <Info size={20} color={activeTab === 'info' ? theme.bgApp : theme.textSecondary} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.tabButton, activeTab === 'characters' && s.activeTabButton]}
+              onPress={() => setActiveTab('characters')}
+              activeOpacity={0.8}
+            >
+              <Users size={20} color={activeTab === 'characters' ? theme.bgApp : theme.textSecondary} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.tabButton, activeTab === 'staff' && s.activeTabButton]}
+              onPress={() => setActiveTab('staff')}
+              activeOpacity={0.8}
+            >
+              <Wand2 size={20} color={activeTab === 'staff' ? theme.bgApp : theme.textSecondary} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.tabButton, activeTab === 'stats' && s.activeTabButton]}
+              onPress={() => setActiveTab('stats')}
+              activeOpacity={0.8}
+            >
+              <BarChart2 size={20} color={activeTab === 'stats' ? theme.bgApp : theme.textSecondary} />
+            </TouchableOpacity>
 
-          {/* Info Sidebar: Horizontal scroll */}
-          <View style={s.section}>
-            <InfoSidebar anime={anime as any} />
-          </View>
+          </ScrollView>
 
-          {/* Characters */}
-          <View style={s.section}>
-            <SectionHeader title={t('MainContentArea:sections.characters')} />
-            <CharactersSection data={characterList} />
-          </View>
+          {/* ── Tab Content ── */}
+          {activeTab === 'info' && (
+            <View style={s.section}>
+              <InfoSidebar anime={anime as any} />
+            </View>
+          )}
 
-          {/* Staff */}
-          <View style={s.section}>
-            <SectionHeader title={t('MainContentArea:sections.staff')} />
-            <StaffSection data={staffList} />
-          </View>
+          {activeTab === 'characters' && (
+            <View style={s.section}>
+              <SectionHeader title={t('MainContentArea:sections.characters')} />
+              <CharactersSection data={characterList} />
+            </View>
+          )}
 
-          {/* Rankings */}
-          <View style={s.section}>
-            <SectionHeader title={t('MainContentArea:sections.rankings')} />
-            <RankingsSection rankings={(stats?.rankings as Ranking[]) || []} />
-          </View>
+          {activeTab === 'staff' && (
+            <View style={s.section}>
+              <SectionHeader title={t('MainContentArea:sections.staff')} />
+              <StaffSection data={staffList} />
+            </View>
+          )}
 
-          {/* Status Distribution */}
-          <View style={s.section}>
-            <SectionHeader title={t('MainContentArea:sections.status_distribution')} />
-            <StatusDistribution distribution={(stats?.status_distribution as StatusItem[]) || []} />
-          </View>
+          {activeTab === 'stats' && (
+            <>
+              <View style={s.section}>
+                <SectionHeader title={t('MainContentArea:sections.rankings')} />
+                <RankingsSection rankings={(stats?.rankings as Ranking[]) || []} />
+              </View>
 
-          {/* Score Distribution */}
-          <View style={s.section}>
-            <SectionHeader title={t('MainContentArea:sections.score_distribution')} />
-            <ScoreDistribution distribution={(stats?.score_distribution as ScoreItem[]) || []} />
-          </View>
+              <View style={s.section}>
+                <SectionHeader title={t('MainContentArea:sections.status_distribution')} />
+                <StatusDistribution distribution={(stats?.status_distribution as StatusItem[]) || []} />
+              </View>
+
+              <View style={s.section}>
+                <SectionHeader title={t('MainContentArea:sections.score_distribution')} />
+                <ScoreDistribution distribution={(stats?.score_distribution as ScoreItem[]) || []} />
+              </View>
+            </>
+          )}
+
         </View>
 
         {/* Bottom spacer */}
         <View style={s.bottomSpacer} />
       </ScrollView>
+
+      <TouchableOpacity
+        style={s.watchButton}
+        onPress={() => navigation.navigate('AnimeWatch', { id })}
+        activeOpacity={0.8}
+      >
+        <View style={s.watchIconWrap}>
+          <View style={s.watchIconContainer}>
+            <Play size={16} color={theme.btnPrimaryText} />
+          </View>
+          <Text style={s.watchButtonText}>{t('AnimeModal:Watch', { defaultValue: 'Watch' })}</Text>
+        </View>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -191,6 +241,7 @@ const makeStyles = (theme: ThemeTokens) =>
     safeArea: {
       flex: 1,
       backgroundColor: theme.bgApp,
+      position: 'relative',
     },
     scrollView: {
       flex: 1,
@@ -269,18 +320,65 @@ const makeStyles = (theme: ThemeTokens) =>
     },
 
     watchButton: {
-      marginTop: spacing['4'],
-      backgroundColor: theme.btnPrimaryBg,
-      paddingVertical: spacing['3'],
-      borderRadius: radius.md,
+      position: 'absolute',
+      right: spacing['4'],
+      bottom: spacing['4'],
+      backgroundColor: theme.bgPanel,
+      paddingVertical: spacing['2'],
+      paddingHorizontal: spacing['3'],
+      borderRadius: radius.lg,
       alignItems: 'center',
       justifyContent: 'center',
+      zIndex: 50,
+      elevation: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.18,
+      shadowRadius: 6,
+      borderWidth: 1,
+      borderColor: theme.borderSubtle,
+    },
+    watchIconWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    watchIconContainer: {
+      width: 36,
+      height: 36,
+      borderRadius: radius.full,
+      backgroundColor: theme.btnPrimaryBg,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: spacing['3'],
     },
     watchButtonText: {
-      color: theme.btnPrimaryText,
-      fontSize: typography.fontSize.base,
-      fontWeight: typography.fontWeight.bold,
-      letterSpacing: 0.3,
+      color: theme.textPrimary,
+      fontSize: typography.fontSize.md,
+      fontWeight: typography.fontWeight.semiBold,
+      letterSpacing: 0.2,
+    },
+
+    // Tabs
+    tabContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: spacing['5'],
+      gap: spacing['2'],
+    },
+    tabButton: {
+      width: 48,
+      height: 48,
+      borderRadius: radius.full,
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: theme.borderSubtle,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: spacing['2'],
+    },
+    activeTabButton: {
+      backgroundColor: theme.textPrimary,
+      borderColor: theme.textPrimary,
     },
 
     bottomSpacer: {

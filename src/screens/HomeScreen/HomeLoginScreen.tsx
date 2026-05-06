@@ -66,33 +66,9 @@ const HomeLoginScreen: React.FC<Props> = ({ navigation }) => {
       {/* ---- Fixed Header ---- */}
       <View style={s.header}>
         <Text style={s.headerTitle}>AniApp</Text>
-        <View style={s.headerRight}>
-          {/* Theme Toggle */}
-          <TouchableOpacity style={s.iconBtn} onPress={toggleTheme}>
-            <Text style={s.iconBtnText}>{themeMode === 'dark' ? '☀️' : '🌙'}</Text>
-          </TouchableOpacity>
 
-          {/* User + Logout */}
-          {username !== '' && (
-            <View style={s.userRow}>
-              <Text style={s.usernameText} numberOfLines={1}>{username}</Text>
-              <TouchableOpacity style={s.logoutBtn} onPress={handleLogout}>
-                <Text style={s.logoutBtnText}>{t('mobile:nav.logout')}</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
       </View>
 
-      {/* ---- Welcome banner ---- */}
-      <View style={s.welcomeBanner}>
-        <Text style={s.welcomeText}>
-          {t('HomePageLogin:welcome', { name: username })}
-        </Text>
-        <Text style={s.welcomeSubtext}>
-          {t('HomePageLogin:subtitle')}
-        </Text>
-      </View>
 
       {/* ---- Anime Sections ---- */}
       <ScrollView
