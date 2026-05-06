@@ -23,7 +23,7 @@ import { useTheme } from '../context/ThemeContext';
 import HomeScreen from '../screens/HomeScreen';
 import BrowseScreen from '../screens/BrowseScreen';
 import AnimeListScreen from '../screens/AnimeListScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AnimeSearchScreen from '../screens/AnimeSearchScreen';
 import BottomNav from '../components/Navigation/Navigation';
