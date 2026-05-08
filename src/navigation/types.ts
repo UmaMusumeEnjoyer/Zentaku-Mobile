@@ -21,6 +21,8 @@ export type MainStackParamList = {
   Browse: undefined;
   AnimeSearch: undefined;
   AnimeList: undefined;
+  /** Watch-along/social watch screen */
+  WatchAlong: undefined;
   Profile: undefined;
   Settings: undefined;
 };

@@ -26,6 +26,7 @@ import AnimeListScreen from '../screens/AnimeListScreen';
 import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AnimeSearchScreen from '../screens/AnimeSearchScreen';
+import WatchAlongScreen from '../screens/WatchAlongScreen';
 import BottomNav from '../components/Navigation/Navigation';
 import { useAuth } from '../context/AuthContext';
 import HomeLoginScreen from '../screens/HomeScreen/HomeLoginScreen';
@@ -58,6 +59,7 @@ const MainLayout: React.FC = () => {
         />
         <Inner.Screen name="Browse" component={BrowseScreen} />
         <Inner.Screen name="AnimeSearch" component={AnimeSearchScreen} />
+        <Inner.Screen name="WatchAlong" component={WatchAlongScreen} />
         {/* AnimeList và Profile chỉ hữu ích khi đã đăng nhập,
             nhưng vẫn đăng ký để Navigation.tsx không throw lỗi navigate */}
         <Inner.Screen name="AnimeList" component={AnimeListScreen} />
