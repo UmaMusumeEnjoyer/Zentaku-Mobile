@@ -23,6 +23,8 @@ export type MainStackParamList = {
   AnimeList: undefined;
   /** Watch-along/social watch screen */
   WatchAlong: undefined;
+  /** Chat screen converted from web ChatApp */
+  ChatApp: undefined;
   Profile: undefined;
   Settings: undefined;
 };
