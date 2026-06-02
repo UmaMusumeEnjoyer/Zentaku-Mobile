@@ -93,13 +93,20 @@ const StaffScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const s = makeStyles(theme);
 
-  // Format date theo ngôn ngữ
-  const formatDateByLanguage = (dateString?: string) => {
-    if (!dateString) return t('info.not_available');
+  const formatDateByLanguage = (dateInput?: string | { year?: number; month?: number; day?: number }) => {
+    if (!dateInput) return t('info.not_available');
 
-    const date = new Date(dateString);
+    let date: Date;
+    if (typeof dateInput === 'string') {
+      date = new Date(dateInput);
+    } else {
+      if (!dateInput.year && !dateInput.month && !dateInput.day) return t('info.not_available');
+      date = new Date(dateInput.year || 2000, (dateInput.month || 1) - 1, dateInput.day || 1);
+      // Nếu chỉ có năm sinh
+      if (dateInput.year && !dateInput.month && !dateInput.day) return `${dateInput.year}`;
+    }
+
     const currentLang = i18n.language;
-
     if (currentLang === 'jp') {
       const year = date.getFullYear();
       const month = date.getMonth() + 1;
@@ -181,7 +188,7 @@ const StaffScreen: React.FC<Props> = ({ route, navigation }) => {
           {/* ── Staff Image ── */}
           <View style={s.imageContainer}>
             <Image
-              source={{ uri: staff.image }}
+              source={{ uri: staff.image?.large }}
               style={s.staffImage}
               resizeMode="cover"
             />
@@ -189,14 +196,14 @@ const StaffScreen: React.FC<Props> = ({ route, navigation }) => {
 
           {/* ── Staff Info ── */}
           <View style={s.infoContainer}>
-            <Text style={s.staffName}>{staff.name_full}</Text>
-            <Text style={s.nativeName}>{staff.name_native}</Text>
+            <Text style={s.staffName}>{staff.name?.full}</Text>
+            <Text style={s.nativeName}>{staff.name?.native}</Text>
 
             {/* Info Grid */}
             <View style={s.infoGrid}>
               <View style={s.infoItem}>
                 <Text style={s.infoLabel}>{t('info.birth')}:</Text>
-                <Text style={s.infoValue}>{formatDateByLanguage(staff.date_of_birth)}</Text>
+                <Text style={s.infoValue}>{formatDateByLanguage(staff.dateOfBirth as any)}</Text>
               </View>
               <View style={s.infoItem}>
                 <Text style={s.infoLabel}>{t('info.age')}:</Text>
@@ -208,7 +215,7 @@ const StaffScreen: React.FC<Props> = ({ route, navigation }) => {
               </View>
               <View style={s.infoItem}>
                 <Text style={s.infoLabel}>{t('info.hometown')}:</Text>
-                <Text style={s.infoValue}>{staff.home_town || t('info.not_available')}</Text>
+                <Text style={s.infoValue}>{staff.homeTown || t('info.not_available')}</Text>
               </View>
             </View>
 
@@ -241,7 +248,7 @@ const StaffScreen: React.FC<Props> = ({ route, navigation }) => {
                 <View style={s.rolesGrid}>
                   {rolesByYear[year].map((role) => (
                     <TouchableOpacity
-                      key={`${role.id}-${role.character_role || Math.random()}`}
+                      key={`${role.id}-${Math.random()}`}
                       style={s.roleCard}
                       activeOpacity={0.7}
                       onPress={() =>
@@ -249,13 +256,13 @@ const StaffScreen: React.FC<Props> = ({ route, navigation }) => {
                       }
                     >
                       <Image
-                        source={{ uri: role.cover_image }}
+                        source={{ uri: role.coverImage?.large }}
                         style={s.roleImage}
                         resizeMode="cover"
                       />
                       <View style={s.roleDetails}>
                         <Text style={s.roleMainText} numberOfLines={1}>
-                          {role.title_romaji}
+                          {role.title?.romaji}
                         </Text>
                         <Text style={s.roleSubText} numberOfLines={1}>
                           {role.format}

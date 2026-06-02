@@ -183,7 +183,7 @@ const CharacterScreen: React.FC<Props> = ({ route, navigation }) => {
           {/* Character Image - centered */}
           <View style={s.imageContainer}>
             <Image
-              source={{ uri: character.image }}
+              source={{ uri: character.image?.large }}
               style={s.characterImage}
               resizeMode="cover"
             />
@@ -191,8 +191,8 @@ const CharacterScreen: React.FC<Props> = ({ route, navigation }) => {
 
           {/* Character Info */}
           <View style={s.infoContainer}>
-            <Text style={s.characterName}>{character.name_full}</Text>
-            <Text style={s.nativeName}>{character.name_native}</Text>
+            <Text style={s.characterName}>{character.name?.full}</Text>
+            <Text style={s.nativeName}>{character.name?.native}</Text>
 
             {/* Description with spoiler support */}
             <View style={s.descriptionContainer}>
@@ -203,7 +203,7 @@ const CharacterScreen: React.FC<Props> = ({ route, navigation }) => {
           </View>
 
           {/* ── Media Appearances Section ── */}
-          {character.media && character.media.length > 0 && (
+          {character.media?.nodes && character.media.nodes.length > 0 && (
             <View style={s.mediaSection}>
               <Text style={s.mediaSectionTitle}>
                 {t('sections.media_appearances')}
@@ -214,13 +214,13 @@ const CharacterScreen: React.FC<Props> = ({ route, navigation }) => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={s.mediaScrollContent}
               >
-                {character.media.map((item: any) => (
+                {character.media.nodes.map((item: any) => (
                   <AnimeCard
                     key={item.id}
                     anime={{
                       id: item.id,
-                      title_romaji: item.title_romaji,
-                      cover_image: item.cover_image,
+                      title_romaji: item.title?.romaji,
+                      cover_image: item.coverImage?.large,
                     } as any}
                   />
                 ))}
