@@ -24,6 +24,7 @@ import {
   Platform,
   TouchableOpacity,
   Dimensions,
+  Linking,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAnimeDetail } from '@umamusumeenjoyer/shared-logic';
@@ -176,6 +177,15 @@ const AnimeDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           {/* ── Tab Content ── */}
           {activeTab === 'info' && (
             <View style={s.section}>
+              {anime.trailer?.id && anime.trailer?.site === 'youtube' && (
+                <TouchableOpacity
+                  style={s.trailerButton}
+                  onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${anime.trailer.id}`)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={s.trailerButtonText}>{t('MainContentArea:sections.trailer', 'Watch Trailer')}</Text>
+                </TouchableOpacity>
+              )}
               <InfoSidebar anime={anime as any} />
             </View>
           )}
@@ -203,12 +213,12 @@ const AnimeDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
               <View style={s.section}>
                 <SectionHeader title={t('MainContentArea:sections.status_distribution')} />
-                <StatusDistribution distribution={(stats?.status_distribution as StatusItem[]) || []} />
+                <StatusDistribution distribution={(stats?.stats?.statusDistribution || stats?.statusDistribution || stats?.status_distribution as StatusItem[]) || []} />
               </View>
 
               <View style={s.section}>
                 <SectionHeader title={t('MainContentArea:sections.score_distribution')} />
-                <ScoreDistribution distribution={(stats?.score_distribution as ScoreItem[]) || []} />
+                <ScoreDistribution distribution={(stats?.stats?.scoreDistribution || stats?.scoreDistribution || stats?.score_distribution as ScoreItem[]) || []} />
               </View>
             </>
           )}
@@ -317,6 +327,18 @@ const makeStyles = (theme: ThemeTokens) =>
     },
     section: {
       marginTop: spacing['5'],
+    },
+    trailerButton: {
+      backgroundColor: theme.btnPrimaryBg,
+      paddingVertical: spacing['3'],
+      borderRadius: radius.md,
+      alignItems: 'center',
+      marginBottom: spacing['4'],
+    },
+    trailerButtonText: {
+      color: theme.btnPrimaryText,
+      fontSize: typography.fontSize.md,
+      fontWeight: typography.fontWeight.bold,
     },
 
     watchButton: {

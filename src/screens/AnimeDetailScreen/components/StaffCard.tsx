@@ -10,32 +10,37 @@ import { useTheme } from '../../../context/ThemeContext';
 import { typography, spacing, radius } from '../../../styles/theme';
 import type { ThemeTokens } from '../../../styles/theme';
 
-const StaffCard: React.FC<StaffCardProps> = ({ staffMember }) => {
+const StaffCard: React.FC<StaffCardProps> = ({ staffMember: edge }) => {
   const { theme } = useTheme();
   const { t } = useTranslation(['StaffSection', 'common']);
   const s = makeStyles(theme);
 
-  const hasDefaultImage = staffMember.image?.includes('default.jpg');
+  const node = (edge as any).node || edge;
+  const role = (edge as any).role || node.role;
+  const imageUrl = node.image?.large || node.image || node.image_url || '';
+  const name = node.name?.full || node.name_full || 'Unknown';
+
+  const hasDefaultImage = imageUrl.includes('default.jpg');
 
   return (
     <View style={s.card}>
-      {hasDefaultImage ? (
+      {hasDefaultImage || !imageUrl ? (
         <View style={s.noImagePlaceholder}>
           <Text style={s.noImageText}>{t('common:staff.no_image')}</Text>
         </View>
       ) : (
         <Image
-          source={{ uri: staffMember.image }}
+          source={{ uri: imageUrl }}
           style={s.avatar}
           resizeMode="cover"
         />
       )}
       <View style={s.details}>
         <Text style={s.name} numberOfLines={1}>
-          {staffMember.name_full}
+          {name}
         </Text>
         <Text style={s.role} numberOfLines={1}>
-          {staffMember.role}
+          {role}
         </Text>
       </View>
     </View>

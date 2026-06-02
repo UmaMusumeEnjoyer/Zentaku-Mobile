@@ -25,13 +25,26 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character }) => {
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp>();
   const s = makeStyles(theme);
-  const voiceActor = character.voice_actors?.[0];
+  const node = (character as any).node || character;
+  const role = (character as any).role || node.role;
+  const voiceActors = (character as any).voiceActors || node.voiceActors || node.voice_actors;
+  const voiceActor = voiceActors?.[0];
+
+  const getPersonName = (personNode: any) => {
+    if (!personNode) return '';
+    return personNode.name?.full || personNode.name_full || 'Unknown';
+  };
+
+  const getPersonImage = (personNode: any) => {
+    if (!personNode) return '';
+    return personNode.image?.large || personNode.image || personNode.image_url || '';
+  };
 
   const handleCharacterPress = useCallback(() => {
-    if (character.id) {
-      navigation.navigate('CharacterDetail', { id: String(character.id) });
+    if (node.id) {
+      navigation.navigate('CharacterDetail', { id: String(node.id) });
     }
-  }, [character.id, navigation]);
+  }, [node.id, navigation]);
 
   const handleVoiceActorPress = useCallback(() => {
     if (voiceActor?.id) {
@@ -49,15 +62,15 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character }) => {
       >
         <View style={s.personInfo}>
           <Image
-            source={{ uri: character.image }}
+            source={{ uri: getPersonImage(node) }}
             style={s.personAvatar}
             resizeMode="cover"
           />
           <View style={s.personDetails}>
             <Text style={s.personName} numberOfLines={2}>
-              {character.name_full}
+              {getPersonName(node)}
             </Text>
-            <Text style={s.personRole}>{character.role}</Text>
+            <Text style={s.personRole}>{role}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -72,12 +85,12 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character }) => {
           <View style={[s.personInfo, s.vaInfo]}>
             <View style={[s.personDetails, s.vaDetails]}>
               <Text style={s.personName} numberOfLines={2}>
-                {voiceActor.name_full}
+                {getPersonName(voiceActor)}
               </Text>
-              <Text style={s.personRole}>{voiceActor.language}</Text>
+              <Text style={s.personRole}>{voiceActor.languageV2 || voiceActor.language}</Text>
             </View>
             <Image
-              source={{ uri: voiceActor.image }}
+              source={{ uri: getPersonImage(voiceActor) }}
               style={s.personAvatar}
               resizeMode="cover"
             />

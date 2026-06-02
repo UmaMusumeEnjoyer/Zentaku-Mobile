@@ -15,10 +15,24 @@ const InfoSidebar: React.FC<InfoSidebarProps> = ({ anime }) => {
   const { theme } = useTheme();
   const s = makeStyles(theme);
 
-  const formatDateByLanguage = (dateString?: string) => {
-    if (!dateString) return 'Unknown';
+  const formatDateByLanguage = (dateObj: any, oldDateString?: string) => {
+    if (dateObj?.year && dateObj?.month && dateObj?.day) {
+      const date = new Date(dateObj.year, dateObj.month - 1, dateObj.day);
+      const currentLang = i18n.language;
+      if (currentLang === 'jp') {
+        return `${dateObj.year}年${dateObj.month}月${dateObj.day}日`;
+      } else {
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+      }
+    }
+    
+    if (!oldDateString) return 'Unknown';
 
-    const date = new Date(dateString);
+    const date = new Date(oldDateString);
     const currentLang = i18n.language;
 
     if (currentLang === 'jp') {
@@ -65,58 +79,70 @@ const InfoSidebar: React.FC<InfoSidebarProps> = ({ anime }) => {
     );
   };
 
+  const format = (anime as any).format || (anime as any).airing_format;
+  const duration = (anime as any).duration;
+  const episodes = (anime as any).episodes || (anime as any).airing_episodes;
+  const status = (anime as any).status || (anime as any).airing_status;
+  const season = (anime as any).season;
+  const seasonYear = (anime as any).seasonYear || (anime as any).season_year;
+  const source = (anime as any).source;
+  const averageScore = (anime as any).averageScore || (anime as any).average_score;
+  const meanScore = (anime as any).meanScore || (anime as any).mean_score;
+  const popularity = (anime as any).popularity;
+  const favourites = (anime as any).favourites;
+  const studios = (anime as any).studios?.nodes?.map((s: any) => s.name) || (anime as any).studios;
+
   return (
     <View style={s.container}>
       {/* Card 1: Format, Duration, Episodes, Status */}
       <View style={s.card}>
         <View style={s.gridRow}>
-          {renderField(t('AnimeDetail:sidebar.format', { defaultValue: 'FORMAT' }), anime.airing_format)}
-          {renderField(t('AnimeDetail:sidebar.episode_duration', { defaultValue: 'DURATION' }), anime.duration ? `${anime.duration} min` : null)}
+          {renderField(t('AnimeDetail:sidebar.format', { defaultValue: 'FORMAT' }), format)}
+          {renderField(t('AnimeDetail:sidebar.episode_duration', { defaultValue: 'DURATION' }), duration ? `${duration} min` : null)}
         </View>
         <View style={s.gridRow}>
-          {renderField(t('AnimeDetail:sidebar.episodes', { defaultValue: 'EPISODES' }), anime.airing_episodes ? `${anime.airing_episodes} episodes` : null)}
-          {renderField(t('AnimeDetail:sidebar.status', { defaultValue: 'STATUS' }), anime.airing_status?.replace(/_/g, ' '))}
+          {renderField(t('AnimeDetail:sidebar.episodes', { defaultValue: 'EPISODES' }), episodes ? `${episodes} episodes` : null)}
+          {renderField(t('AnimeDetail:sidebar.status', { defaultValue: 'STATUS' }), status?.replace(/_/g, ' '))}
         </View>
       </View>
 
       {/* Card 2: Start Date, End Date, Season, Source */}
       <View style={s.card}>
         <View style={s.gridRow}>
-          {renderField(t('AnimeDetail:sidebar.start_date', { defaultValue: 'START DATE' }), formatDateByLanguage(anime.starting_time))}
-          {renderField(t('AnimeDetail:sidebar.end_date', { defaultValue: 'END DATE' }), formatDateByLanguage(anime.ending_time))}
+          {renderField(t('AnimeDetail:sidebar.start_date', { defaultValue: 'START DATE' }), formatDateByLanguage((anime as any).startDate, (anime as any).starting_time))}
+          {renderField(t('AnimeDetail:sidebar.end_date', { defaultValue: 'END DATE' }), formatDateByLanguage((anime as any).endDate, (anime as any).ending_time))}
         </View>
         <View style={s.gridRow}>
-          {renderField(t('AnimeDetail:sidebar.season', { defaultValue: 'SEASON' }), anime.season && anime.season_year ? `${anime.season} ${anime.season_year}` : null)}
-          {renderField(t('AnimeDetail:sidebar.source', { defaultValue: 'SOURCE' }), anime.source)}
+          {renderField(t('AnimeDetail:sidebar.season', { defaultValue: 'SEASON' }), season && seasonYear ? `${season} ${seasonYear}` : null)}
+          {renderField(t('AnimeDetail:sidebar.source', { defaultValue: 'SOURCE' }), source)}
         </View>
       </View>
 
       {/* Card 3: Titles */}
       <View style={s.card}>
-        {renderVerticalField('ROMAJI', (anime as any).name_romaji || (anime as any).name)}
-        {renderVerticalField('ENGLISH', anime.name_english)}
-        {renderVerticalField('NATIVE', anime.name_native)}
+        {renderVerticalField('ROMAJI', (anime as any).title?.romaji || (anime as any).name_romaji || (anime as any).name)}
+        {renderVerticalField('ENGLISH', (anime as any).title?.english || (anime as any).name_english)}
+        {renderVerticalField('NATIVE', (anime as any).title?.native || (anime as any).name_native)}
       </View>
 
       {/* Card 4: Scores & Popularity */}
-      {(anime.average_score || anime.mean_score || anime.popularity || anime.favourites) && (
+      {(averageScore || meanScore || popularity || favourites) && (
         <View style={s.card}>
           <View style={s.gridRow}>
-            {renderField(t('AnimeDetail:sidebar.average_score', { defaultValue: 'AVERAGE SCORE' }), anime.average_score ? `${anime.average_score}%` : null)}
-            {renderField(t('AnimeDetail:sidebar.mean_score', { defaultValue: 'MEAN SCORE' }), anime.mean_score ? `${anime.mean_score}%` : null)}
+            {renderField(t('AnimeDetail:sidebar.average_score', { defaultValue: 'AVERAGE SCORE' }), averageScore ? `${averageScore}%` : null)}
+            {renderField(t('AnimeDetail:sidebar.mean_score', { defaultValue: 'MEAN SCORE' }), meanScore ? `${meanScore}%` : null)}
           </View>
           <View style={s.gridRow}>
-            {renderField(t('AnimeDetail:sidebar.popularity', { defaultValue: 'POPULARITY' }), anime.popularity?.toLocaleString())}
-            {renderField(t('AnimeDetail:sidebar.favorites', { defaultValue: 'FAVORITES' }), anime.favourites?.toLocaleString())}
+            {renderField(t('AnimeDetail:sidebar.popularity', { defaultValue: 'POPULARITY' }), popularity?.toLocaleString())}
+            {renderField(t('AnimeDetail:sidebar.favorites', { defaultValue: 'FAVORITES' }), favourites?.toLocaleString())}
           </View>
         </View>
       )}
 
       {/* Card 5: Studios & Producers */}
-      {((anime.studios && anime.studios.length > 0) || (anime.producers && anime.producers.length > 0)) && (
+      {studios && studios.length > 0 && (
         <View style={s.card}>
-          {renderListField(t('AnimeDetail:sidebar.studios', { defaultValue: 'STUDIOS' }), anime.studios)}
-          {renderListField(t('AnimeDetail:sidebar.producers', { defaultValue: 'PRODUCERS' }), anime.producers)}
+          {renderListField(t('AnimeDetail:sidebar.studios', { defaultValue: 'STUDIOS' }), studios)}
         </View>
       )}
     </View>

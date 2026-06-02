@@ -44,16 +44,20 @@ const SummarySection: React.FC<SummarySectionProps> = ({ anime, hasBanner }) => 
   const s = makeStyles(theme);
 
   // Strip HTML tags for mobile (dangerouslySetInnerHTML not available in RN)
-  const plainDescription = anime.desc
-    ? anime.desc.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
+  const rawDesc = anime.description || anime.desc || '';
+  const plainDescription = rawDesc
+    ? rawDesc.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
     : '';
+
+  const title = (anime as any).title?.romaji || (anime as any).title?.english || (anime as any).name_romaji || 'Unknown Title';
+  const coverImage = (anime as any).coverImage?.extraLarge || (anime as any).coverImage?.large || (anime as any).cover_image;
 
   return (
     <View style={[s.container, !hasBanner && s.noBanner]}>
       {/* Left: Cover image + Button */}
       <View style={s.left}>
         <Image
-          source={{ uri: anime.cover_image }}
+          source={{ uri: coverImage }}
           style={s.coverImage}
           resizeMode="cover"
         />
@@ -69,7 +73,7 @@ const SummarySection: React.FC<SummarySectionProps> = ({ anime, hasBanner }) => 
       {/* Right: Title + Description */}
       <View style={[s.right, !hasBanner && s.rightNoBanner]}>
         <Text style={s.title} numberOfLines={3}>
-          {anime.name_romaji}
+          {title}
         </Text>
 
         {plainDescription ? (
