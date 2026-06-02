@@ -20,7 +20,9 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AnimeCard from '../../components/AnimeCard/AnimeCard';
+import AnimeCardSkeleton from '../../components/Skeleton/AnimeCardSkeleton';
 import AnimeSection from '../../components/AnimeSection/AnimeSection';
+import Header from '../../components/Header/Header';
 import { searchService } from '@umamusumeenjoyer/shared-logic/dist/services/search.service';
 import { heroList } from '@umamusumeenjoyer/shared-logic/dist/features/animeSearch/animeSearchConstants';
 import { filterData, GENRE_I18N_MAP } from '@umamusumeenjoyer/shared-logic/dist/features/animeSearch/components/filterBar/filter.data';
@@ -533,9 +535,7 @@ const AnimeSearchScreen: React.FC<Props> = ({ route }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.bgApp }]}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.textPrimary }]}>{t('title', 'Search Anime')}</Text>
-      </View>
+      <Header title={t('title', 'Search Anime')} showBack showDefaultRightActions />
 
       <View style={styles.searchRow}>
         <TextInput
@@ -591,7 +591,24 @@ const AnimeSearchScreen: React.FC<Props> = ({ route }) => {
             </View>
 
             {loading ? (
-              <ActivityIndicator size="large" color={theme.primary} />
+              <View style={{ paddingBottom: 120 }}>
+                <View style={styles.resultsRow}>
+                  <View style={styles.gridItemWrap}>
+                    <AnimeCardSkeleton style={styles.gridCard} />
+                  </View>
+                  <View style={styles.gridItemWrap}>
+                    <AnimeCardSkeleton style={styles.gridCard} />
+                  </View>
+                </View>
+                <View style={styles.resultsRow}>
+                  <View style={styles.gridItemWrap}>
+                    <AnimeCardSkeleton style={styles.gridCard} />
+                  </View>
+                  <View style={styles.gridItemWrap}>
+                    <AnimeCardSkeleton style={styles.gridCard} />
+                  </View>
+                </View>
+              </View>
             ) : results.length === 0 ? (
               <View style={styles.empty}>
                 <Text style={{ color: theme.textSecondary }}>{t('searchResults.noResults', 'No results — try another keyword')}</Text>
@@ -687,9 +704,7 @@ const AnimeSearchScreen: React.FC<Props> = ({ route }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 },
-  title: { fontSize: 22, fontWeight: '700' },
-  searchRow: { flexDirection: 'row', paddingHorizontal: 12, alignItems: 'center', marginBottom: 10 },
+  searchRow: { flexDirection: 'row', paddingHorizontal: 12, alignItems: 'center', marginBottom: 10, marginTop: 10 },
   input: {
     flex: 1,
     borderWidth: 1,

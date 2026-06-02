@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import type { AnimeSectionProps, AnimeData } from '@umamusumeenjoyer/shared-logic';
 
 import AnimeCard from '../AnimeCard/AnimeCard';
+import AnimeSectionSkeleton from '../Skeleton/AnimeSectionSkeleton';
 import { useTheme } from '../../context/ThemeContext';
 import { typography, spacing } from '../../styles/theme';
 import type { ThemeTokens } from '../../styles/theme';
@@ -49,16 +50,7 @@ const AnimeSection: React.FC<NativeAnimeSectionProps> = ({
 
   // ---- Loading skeleton ----
   if (isLoading) {
-    return (
-      <View style={s.container}>
-        <View style={s.skeletonHeader} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.scrollRow}>
-          {[...Array(INITIAL_DISPLAY_COUNT)].map((_, i) => (
-            <View key={i} style={s.skeletonCard} />
-          ))}
-        </ScrollView>
-      </View>
-    );
+    return <AnimeSectionSkeleton count={INITIAL_DISPLAY_COUNT} />;
   }
 
   // ---- Empty ----
@@ -144,22 +136,6 @@ const makeStyles = (theme: ThemeTokens) =>
       color: theme.textSecondary,
       paddingHorizontal: spacing['4'],
       paddingVertical: spacing['2'],
-    },
-    skeletonHeader: {
-      width: 160,
-      height: 20,
-      backgroundColor: theme.bgHover,
-      borderRadius: 6,
-      marginBottom: spacing['3'],
-      marginHorizontal: spacing['4'],
-    },
-    skeletonCard: {
-      width: 130,
-      height: 220,
-      backgroundColor: theme.bgHover,
-      borderRadius: 8,
-      marginRight: spacing['3'],
-      opacity: 0.6,
     },
   });
 

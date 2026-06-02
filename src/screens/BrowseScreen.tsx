@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } fr
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
+import Header from '../components/Header/Header';
 import { filterData, GENRE_I18N_MAP } from '@umamusumeenjoyer/shared-logic/dist/features/animeSearch/components/filterBar/filter.data';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '../navigation/types';
@@ -33,11 +34,7 @@ const BrowseScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.bgApp }]}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.textPrimary }]}>
-          {t('Header:navigation.browse', 'Browse Catalog')}
-        </Text>
-      </View>
+      <Header title={t('Header:navigation.browse', 'Browse Catalog')} showDefaultRightActions />
       
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
@@ -119,8 +116,6 @@ const BrowseScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 },
-  title: { fontSize: 26, fontWeight: '800' },
   scrollContent: { paddingHorizontal: 16, paddingBottom: 100 },
   section: { marginTop: 24 },
   sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: 14 },

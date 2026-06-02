@@ -16,7 +16,8 @@ import { useHomePagelogin } from '@umamusumeenjoyer/shared-logic';
 import AnimeSection from '../../components/AnimeSection/AnimeSection';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import { spacing } from '../../styles/theme'; // Giữ lại spacing vì bạn có dùng inline style ở dưới cùng
+import { typography, spacing, radius } from '../../styles/theme';
+import Header from '../../components/Header/Header';
 import type { RootStackParamList } from '../../navigation/types';
 import { ENV } from '../../utils/env';
 
@@ -64,11 +65,7 @@ const HomeLoginScreen: React.FC<Props> = ({ navigation }) => {
       />
 
       {/* ---- Fixed Header ---- */}
-      <View style={s.header}>
-        <Text style={s.headerTitle}>AniApp</Text>
-
-      </View>
-
+      <Header title="AniApp" showDefaultRightActions />
 
       {/* ---- Anime Sections ---- */}
       <ScrollView

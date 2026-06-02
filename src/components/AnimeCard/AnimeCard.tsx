@@ -23,6 +23,7 @@ import {
 } from '@umamusumeenjoyer/shared-logic';
 
 import { useTheme } from '../../context/ThemeContext';
+import { useAnimeModal } from '../../context/AnimeModalContext';
 import { typography, spacing, radius } from '../../styles/theme';
 import type { ThemeTokens } from '../../styles/theme';
 import type { RootStackParamList } from '../../navigation/types';
@@ -44,6 +45,7 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const AnimeCard: React.FC<AnimeCardProps> = ({ anime, style }) => {
   const { theme } = useTheme();
+  const { showModal } = useAnimeModal();
   const { i18n } = useTranslation();
   const navigation = useNavigation<NavigationProp>();
   // Ép kiểu để tránh lỗi — i18n.language có thể là 'en' | 'jp'
@@ -67,8 +69,17 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, style }) => {
     }
   }, [linkId, navigation]);
 
+  const handleLongPress = useCallback(() => {
+    showModal(anime);
+  }, [anime, showModal]);
+
   return (
-    <TouchableOpacity style={[s.card, style]} activeOpacity={0.85} onPress={handlePress}>
+    <TouchableOpacity 
+      style={[s.card, style]} 
+      activeOpacity={0.85} 
+      onPress={handlePress}
+      onLongPress={handleLongPress}
+    >
       {/* ---- Thumbnail ---- */}
       <View style={s.imageWrapper}>
         {anime.coverImage?.large || anime.coverImage?.medium ? (

@@ -19,6 +19,7 @@ import { useTheme } from '../context/ThemeContext';
 import { typography, spacing, radius } from '../styles/theme';
 import type { ThemeTokens } from '../styles/theme';
 import AnimeSection from '../components/AnimeSection/AnimeSection';
+import Header from '../components/Header/Header';
 
 // ----------------------------------------------------------------
 // Main Screen
@@ -46,10 +47,11 @@ const HomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* ---- Header ---- */}
-        <View style={s.header}>
-          <Text style={s.appName}>AniApp</Text>
-          <Text style={s.subtitle}>{t('greeting', { ns: 'HomePage', name: 'User' })}</Text>
-        </View>
+        <Header 
+          title="AniApp" 
+          subtitle={t('greeting', { ns: 'HomePage', name: 'User' })} 
+          showDefaultRightActions 
+        />
 
         {/* ---- Trending Section ---- */}
         <AnimeSection
@@ -103,25 +105,7 @@ const makeStyles = (theme: ThemeTokens) =>
       paddingTop: Platform.OS === 'android' ? spacing['4'] : spacing['2'],
     },
 
-    // Header
-    header: {
-      paddingHorizontal: spacing['4'],
-      paddingVertical: spacing['5'],
-      borderBottomWidth: 1,
-      borderBottomColor: theme.borderSubtle,
-      marginBottom: spacing['4'],
-    },
-    appName: {
-      fontSize: typography.fontSize['2xl'],
-      fontWeight: typography.fontWeight.bold,
-      color: theme.primary,
-      letterSpacing: 0.5,
-    },
-    subtitle: {
-      fontSize: typography.fontSize.base,
-      color: theme.textSecondary,
-      marginTop: spacing['1'],
-    },
+
 
     // Controls card
     controlsCard: {

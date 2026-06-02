@@ -44,7 +44,8 @@ import StaffSection from './components/StaffSection';
 import RankingsSection from './components/RankingsSection';
 import StatusDistribution from './components/StatusDistribution';
 import ScoreDistribution from './components/ScoreDistribution';
-import { Info, Users, Wand2, BarChart2, MessageSquare, Play } from 'lucide-react-native';
+import AnimeDetailSkeleton from './components/AnimeDetailSkeleton';
+import { Info, Users, Wand2, BarChart2, MessageSquare, Play, BookOpen } from 'lucide-react-native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AnimeDetail'>;
 
@@ -59,6 +60,9 @@ const AnimeDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [activeTab, setActiveTab] = useState<'info' | 'characters' | 'staff' | 'stats' | 'reviews'>('info');
 
   const s = makeStyles(theme);
+  
+  const isManga = anime?.format === 'MANGA' || anime?.format === 'ONE_SHOT';
+  const isNovel = anime?.format === 'NOVEL';
 
   // ── Loading State ──
   if (loading) {
@@ -68,10 +72,7 @@ const AnimeDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor={theme.bgApp}
         />
-        <View style={s.centerContainer}>
-          <ActivityIndicator size="large" color={theme.primary} />
-          <Text style={s.loadingText}>{t('common:loading')}</Text>
-        </View>
+        <AnimeDetailSkeleton />
       </SafeAreaView>
     );
   }
@@ -231,14 +232,31 @@ const AnimeDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
       <TouchableOpacity
         style={s.watchButton}
-        onPress={() => navigation.navigate('AnimeWatch', { id })}
+        onPress={() => {
+          if (isManga) {
+            navigation.navigate('MangaReader', { mangaId: id });
+          } else if (isNovel) {
+            // navigation.navigate('NovelReader', { novelId: id });
+            console.log('NovelReader coming soon');
+          } else {
+            navigation.navigate('AnimeWatch', { id });
+          }
+        }}
         activeOpacity={0.8}
       >
         <View style={s.watchIconWrap}>
           <View style={s.watchIconContainer}>
-            <Play size={16} color={theme.btnPrimaryText} />
+            {isManga || isNovel ? (
+              <BookOpen size={16} color={theme.btnPrimaryText} />
+            ) : (
+              <Play size={16} color={theme.btnPrimaryText} />
+            )}
           </View>
-          <Text style={s.watchButtonText}>{t('AnimeModal:Watch', { defaultValue: 'Watch' })}</Text>
+          <Text style={s.watchButtonText}>
+            {isManga || isNovel 
+              ? t('AnimeModal:Read', { defaultValue: 'Read' }) 
+              : t('AnimeModal:Watch', { defaultValue: 'Watch' })}
+          </Text>
         </View>
       </TouchableOpacity>
     </SafeAreaView>

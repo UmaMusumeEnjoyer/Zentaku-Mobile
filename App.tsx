@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { LanguageProvider } from './src/context/LanguageContext';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { AnimeModalProvider } from './src/context/AnimeModalContext';
 import { hydrateLocalStorage } from './src/utils/localStorageShim';
 import { ENV } from './src/utils/env';
 
@@ -32,6 +33,7 @@ import AnimeDetailScreen from './src/screens/AnimeDetailScreen';
 import AnimeWatchScreen from './src/screens/AnimeWatchScreen';
 import CharacterScreen from './src/screens/CharacterScreen';
 import StaffScreen from './src/screens/StaffScreen';
+import MangaReaderScreen from './src/screens/MangaReaderScreen';
 
 import type { RootStackParamList } from './src/navigation/types';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -79,41 +81,45 @@ const RootNavigator: React.FC = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: theme.bgApp },
-          animation: 'slide_from_right',
-        }}
-      >
-        {user ? (
-          // ---- Đã đăng nhập ----
-          <>
-            <Stack.Screen name="Main" component={MainLayout} />
-            <Stack.Screen name="AnimeDetail" component={AnimeDetailScreen} />
-            <Stack.Screen name="AnimeWatch" component={AnimeWatchScreen} />
-            <Stack.Screen name="CharacterDetail" component={CharacterScreen} />
-            <Stack.Screen name="StaffDetail" component={StaffScreen} />
-          </>
-        ) : (
-          // ---- Chưa đăng nhập ----
-          <>
-            {/* Guest cũng có thể vào Main (xem anime không cần login) */}
-            <Stack.Screen name="Main" component={MainLayout} />
-            {/* Màn hình Login/Signup */}
-            <Stack.Screen
-              name="Login"
-              component={AuthScreen}
-              options={{ animation: 'slide_from_bottom' }}
-            />
-            {/* Chi tiết anime — xem không cần đăng nhập */}
-            <Stack.Screen name="AnimeDetail" component={AnimeDetailScreen} />
-            <Stack.Screen name="AnimeWatch" component={AnimeWatchScreen} />
-            <Stack.Screen name="CharacterDetail" component={CharacterScreen} />
-            <Stack.Screen name="StaffDetail" component={StaffScreen} />
-          </>
-        )}
-      </Stack.Navigator>
+      <AnimeModalProvider>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: theme.bgApp },
+            animation: 'slide_from_right',
+          }}
+        >
+          {user ? (
+            // ---- Đã đăng nhập ----
+            <>
+              <Stack.Screen name="Main" component={MainLayout} />
+              <Stack.Screen name="AnimeDetail" component={AnimeDetailScreen} />
+              <Stack.Screen name="AnimeWatch" component={AnimeWatchScreen} />
+              <Stack.Screen name="CharacterDetail" component={CharacterScreen} />
+              <Stack.Screen name="StaffDetail" component={StaffScreen} />
+              <Stack.Screen name="MangaReader" component={MangaReaderScreen} />
+            </>
+          ) : (
+            // ---- Chưa đăng nhập ----
+            <>
+              {/* Guest cũng có thể vào Main (xem anime không cần login) */}
+              <Stack.Screen name="Main" component={MainLayout} />
+              {/* Màn hình Login/Signup */}
+              <Stack.Screen
+                name="Login"
+                component={AuthScreen}
+                options={{ animation: 'slide_from_bottom' }}
+              />
+              {/* Chi tiết anime — xem không cần đăng nhập */}
+              <Stack.Screen name="AnimeDetail" component={AnimeDetailScreen} />
+              <Stack.Screen name="AnimeWatch" component={AnimeWatchScreen} />
+              <Stack.Screen name="CharacterDetail" component={CharacterScreen} />
+              <Stack.Screen name="StaffDetail" component={StaffScreen} />
+              <Stack.Screen name="MangaReader" component={MangaReaderScreen} />
+            </>
+          )}
+        </Stack.Navigator>
+      </AnimeModalProvider>
     </NavigationContainer>
   );
 };

@@ -15,11 +15,11 @@ import {
   View,
   Text,
   TextInput,
-  Picker,
   Switch,
   StyleSheet,
   ScrollView,
 } from 'react-native'
+import { Picker } from '@react-native-picker/picker'
 import { useTranslation } from 'react-i18next'
 import type { EditorFormData } from '@umamusumeenjoyer/shared-logic'
 import { spacing, radius, typography } from '../../../styles/theme'

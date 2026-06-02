@@ -21,13 +21,13 @@ import {
   Moon,
   Sun,
   Globe,
-  ChevronLeft,
   LogOut,
   Info,
   Palette,
   Languages,
   Check,
 } from 'lucide-react-native';
+import Header from '../components/Header/Header';
 
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -67,20 +67,7 @@ const SettingsScreen: React.FC = () => {
         backgroundColor={theme.bgApp}
       />
 
-      {/* ---- Header ---- */}
-      <View style={s.header}>
-        <TouchableOpacity
-          style={s.backBtn}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-        >
-          <ChevronLeft color={theme.textPrimary} size={24} />
-        </TouchableOpacity>
-        <Text style={s.headerTitle}>
-          {t('settings.title', { ns: 'mobile' })}
-        </Text>
-        <View style={s.headerSpacer} />
-      </View>
+      <Header title={t('settings.title', { ns: 'mobile' })} showBack />
 
       <ScrollView
         style={s.scrollView}
@@ -338,30 +325,6 @@ const makeStyles = (theme: ThemeTokens) =>
     safeArea: {
       flex: 1,
       backgroundColor: theme.bgApp,
-    },
-
-    // Header
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing['4'],
-      paddingVertical: spacing['3'],
-      borderBottomWidth: 1,
-      borderBottomColor: theme.borderSubtle,
-      backgroundColor: theme.bgPanel,
-    },
-    backBtn: {
-      padding: spacing['1'],
-      marginRight: spacing['2'],
-    },
-    headerTitle: {
-      flex: 1,
-      fontSize: typography.fontSize.xl,
-      fontWeight: typography.fontWeight.bold,
-      color: theme.textPrimary,
-    },
-    headerSpacer: {
-      width: 32,
     },
 
     // Scroll

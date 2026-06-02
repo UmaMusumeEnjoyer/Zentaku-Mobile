@@ -25,7 +25,7 @@ export type MainStackParamList = {
   WatchAlong: { roomId?: string } | undefined;
   /** Chat screen converted from web ChatApp */
   ChatApp: undefined;
-  Profile: undefined;
+  Profile: { username?: string } | undefined;
   Settings: undefined;
 };
 
@@ -45,6 +45,8 @@ export type RootStackParamList = {
   CharacterDetail: { id: string };
   /** Màn hình chi tiết staff/voice actor */
   StaffDetail: { id: string };
+  /** Màn hình đọc Manga */
+  MangaReader: { mangaId: string; chapterId?: string };
 };
 
 declare global {
