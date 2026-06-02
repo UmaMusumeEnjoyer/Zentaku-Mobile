@@ -37,6 +37,7 @@ const ActivityFeedSection: React.FC<ActivityFeedSectionProps> = ({
     handleLoadMore,
     getTargetUrl,
     formatTimeAgo,
+    getAgoSeconds,
     getActionClass,
     getActionIconChar,
     getActionDescription,
@@ -86,7 +87,7 @@ const ActivityFeedSection: React.FC<ActivityFeedSectionProps> = ({
     <View style={s.feedContainer}>
       {displayItems.map((item, index) => {
         const isLast = index === displayItems.length - 1;
-        const actionClass = getActionClass(item.action_type);
+        const actionClass = getActionClass(item);
 
         return (
           <View key={item.id} style={s.feedRow}>
@@ -94,7 +95,7 @@ const ActivityFeedSection: React.FC<ActivityFeedSectionProps> = ({
             <View style={s.feedTimeline}>
               <View style={[s.feedIconCircle, getIconStyle(actionClass)]}>
                 <Text style={s.feedIconText}>
-                  {getActionIconChar(item.action_type)}
+                  {getActionIconChar(item)}
                 </Text>
               </View>
               {!isLast && <View style={s.feedLine} />}
@@ -105,7 +106,7 @@ const ActivityFeedSection: React.FC<ActivityFeedSectionProps> = ({
               <View style={s.feedHeader}>
                 <Text style={s.feedUser}>{username}</Text>
                 <Text style={s.feedAction}>
-                  {getActionDescription(item.action_type)}
+                  {getActionDescription(item)}
                 </Text>
                 <TouchableOpacity
                   onPress={() => handleTargetClick(item)}
@@ -114,7 +115,7 @@ const ActivityFeedSection: React.FC<ActivityFeedSectionProps> = ({
                   <Text style={s.feedTarget}>{getTargetName(item)}</Text>
                 </TouchableOpacity>
                 <Text style={s.feedTime}>
-                  {formatTimeAgo(item.ago_seconds)}
+                  {formatTimeAgo(getAgoSeconds(item))}
                 </Text>
               </View>
             </View>
