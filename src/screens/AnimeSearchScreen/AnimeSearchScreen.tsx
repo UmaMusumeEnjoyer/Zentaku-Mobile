@@ -10,7 +10,6 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  FlatList,
   ActivityIndicator,
   ImageBackground,
   ScrollView,
@@ -18,6 +17,7 @@ import {
   Pressable,
   useWindowDimensions,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AnimeCard from '../../components/AnimeCard/AnimeCard';
 import AnimeCardSkeleton from '../../components/Skeleton/AnimeCardSkeleton';
@@ -614,28 +614,31 @@ const AnimeSearchScreen: React.FC<Props> = ({ route }) => {
                 <Text style={{ color: theme.textSecondary }}>{t('searchResults.noResults', 'No results — try another keyword')}</Text>
               </View>
             ) : (
-              <FlatList
-                data={results}
-                numColumns={2}
-                keyExtractor={(item: any, index) => String(item.id ?? item.anilist_id ?? item.name_romaji ?? index)}
-                columnWrapperStyle={styles.resultsRow}
-                renderItem={({ item }) => (
-                  <View style={styles.gridItemWrap}>
-                    <AnimeCard anime={item as any} style={styles.gridCard} />
-                  </View>
-                )}
-                ListFooterComponent={
-                  <>
-                    {loadingMore ? <ActivityIndicator size="small" color={theme.primary} style={styles.loadMoreIndicator} /> : null}
-                    {!loadingMore && canLoadMore ? (
-                      <TouchableOpacity style={[styles.loadMoreBtn, { backgroundColor: theme.primary }]} onPress={handleLoadMore}>
-                        <Text style={styles.loadMoreBtnText}>{t('searchResults.seeMore', 'See More')}</Text>
-                      </TouchableOpacity>
-                    ) : null}
-                  </>
-                }
-                contentContainerStyle={{ paddingBottom: 120 }}
-              />
+              <View style={{ flex: 1, width: '100%' }}>
+                <FlashList
+                  data={results}
+                  numColumns={2}
+                  keyExtractor={(item: any, index) => String(item.id ?? item.anilist_id ?? item.name_romaji ?? index)}
+                  renderItem={({ item }) => (
+                    <View style={styles.gridItemWrap}>
+                      <AnimeCard anime={item as any} style={styles.gridCard} />
+                    </View>
+                  )}
+                  ListFooterComponent={
+                    <>
+                      {loadingMore ? <ActivityIndicator size="small" color={theme.primary} style={styles.loadMoreIndicator} /> : null}
+                      {!loadingMore && canLoadMore ? (
+                        <TouchableOpacity style={[styles.loadMoreBtn, { backgroundColor: theme.primary }]} onPress={handleLoadMore}>
+                          <Text style={styles.loadMoreBtnText}>{t('searchResults.seeMore', 'See More')}</Text>
+                        </TouchableOpacity>
+                      ) : null}
+                    </>
+                  }
+                  contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 12 }}
+                  onEndReached={handleLoadMore}
+                  onEndReachedThreshold={0.5}
+                />
+              </View>
             )}
           </>
         ) : (

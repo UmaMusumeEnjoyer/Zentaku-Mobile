@@ -9,8 +9,9 @@ import {
   Image,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  Animated,
+  Pressable,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -73,14 +74,31 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, style }) => {
     showModal(anime);
   }, [anime, showModal]);
 
+  const scaleValue = React.useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleValue, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleValue, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
-    <TouchableOpacity 
-      style={[s.card, style]} 
-      activeOpacity={0.85} 
+    <Pressable 
       onPress={handlePress}
       onLongPress={handleLongPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
     >
-      {/* ---- Thumbnail ---- */}
+      <Animated.View style={[s.card, style, { transform: [{ scale: scaleValue }] }]}>
+        {/* ---- Thumbnail ---- */}
       <View style={s.imageWrapper}>
         {anime.coverImage?.large || anime.coverImage?.medium ? (
           <Image
@@ -130,7 +148,8 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, style }) => {
           </Text>
         )}
       </View>
-    </TouchableOpacity>
+      </Animated.View>
+    </Pressable>
   );
 };
 

@@ -6,14 +6,14 @@
  */
 import React, { useState } from 'react';
 import {
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useTranslation } from 'react-i18next';
-import type { AnimeSectionProps, AnimeData } from '@umamusumeenjoyer/shared-logic';
+import type { AnimeData } from '@umamusumeenjoyer/shared-logic';
 
 import AnimeCard from '../AnimeCard/AnimeCard';
 import AnimeSectionSkeleton from '../Skeleton/AnimeSectionSkeleton';
@@ -45,8 +45,6 @@ const AnimeSection: React.FC<NativeAnimeSectionProps> = ({
   const [showAll, setShowAll] = useState(false);
 
   const s = makeStyles(theme);
-
-  const displayedList = showAll ? animeList : animeList.slice(0, INITIAL_DISPLAY_COUNT);
 
   // ---- Loading skeleton ----
   if (isLoading) {
@@ -85,15 +83,18 @@ const AnimeSection: React.FC<NativeAnimeSectionProps> = ({
       </View>
 
       {/* ---- Cards ---- */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={s.scrollContent}
-      >
-        {displayedList.map((anime) => (
-          <AnimeCard key={anime.id ?? anime.title?.romaji} anime={anime} />
-        ))}
-      </ScrollView>
+      <View style={{ height: 260, width: '100%' }}>
+        <FlashList
+          data={showAll ? animeList : animeList.slice(0, INITIAL_DISPLAY_COUNT)}
+          keyExtractor={(item: any, index: number) => String(item?.id ?? item?.anilist_id ?? index)}
+          renderItem={({ item }) => (
+            <AnimeCard anime={item as AnimeData} />
+          )}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={s.scrollContent}
+        />
+      </View>
     </View>
   );
 };

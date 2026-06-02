@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
+  RefreshControl,
 } from 'react-native';
+import { useCallback, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -53,6 +55,14 @@ const HomeLoginScreen: React.FC<Props> = ({ navigation }) => {
 
   const username = user?.username ?? (global as any).localStorage?.getItem('username') ?? '';
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setRefreshing(false);
+  }, []);
+
   // ----------------------------------------------------------------
   // Render
   // ----------------------------------------------------------------
@@ -72,6 +82,9 @@ const HomeLoginScreen: React.FC<Props> = ({ navigation }) => {
         style={s.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={s.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.primary]} tintColor={theme.primary} />
+        }
       >
         <AnimeSection
           title={t('HomePageLogin:sections.watching')}

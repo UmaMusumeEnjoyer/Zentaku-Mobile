@@ -12,7 +12,9 @@ import {
   StatusBar,
   SafeAreaView,
   Platform,
+  RefreshControl,
 } from 'react-native';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHomeLogic } from '@umamusumeenjoyer/shared-logic';
 import { useTheme } from '../context/ThemeContext';
@@ -35,6 +37,15 @@ const HomeScreen: React.FC = () => {
 
   const s = makeStyles(theme);
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    // Simulate refresh delay or wait for actual refetch if available
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setRefreshing(false);
+  }, []);
+
   return (
     <SafeAreaView style={s.safeArea}>
       <StatusBar
@@ -46,6 +57,9 @@ const HomeScreen: React.FC = () => {
         style={s.scrollView}
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.primary]} tintColor={theme.primary} />
+        }
       >
         {/* ---- Header ---- */}
         <Header 

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator, FlatList, Image } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -103,13 +104,15 @@ const ScheduleScreen: React.FC = () => {
             <Text style={s.emptyText}>Không có lịch chiếu nào vào ngày này.</Text>
           </View>
         ) : (
-          <FlatList
-            data={selectedDayEvents}
-            keyExtractor={(item) => `${item.id}-${item.episode}`}
-            renderItem={renderEventItem}
-            contentContainerStyle={s.listContent}
-            showsVerticalScrollIndicator={false}
-          />
+          <View style={{ flex: 1, width: '100%' }}>
+            <FlashList
+              data={selectedDayEvents}
+              keyExtractor={(item: any) => `${item.id}-${item.episode}`}
+              renderItem={renderEventItem}
+              contentContainerStyle={s.listContent}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
         )}
       </View>
     </SafeAreaView>
