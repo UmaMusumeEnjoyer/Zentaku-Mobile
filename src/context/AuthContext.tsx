@@ -47,8 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await authService.refreshToken();
       const newAccessToken = response.data.accessToken;
-
-      (global as any).localStorage?.setItem('authToken', newAccessToken);
+      (global as any).localStorage?.setItem('accessToken', newAccessToken);
     } catch (error) {
       console.error('Failed to refresh token:', error);
       authLogic.logout();
@@ -58,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const setupRefreshTimer = () => {
     if (refreshTimerRef.current) clearInterval(refreshTimerRef.current);
     refreshTimerRef.current = setInterval(() => {
-      const token = (global as any).localStorage?.getItem('authToken');
+      const token = (global as any).localStorage?.getItem('accessToken');
       if (token) refreshAccessToken();
     }, 10 * 60 * 1000); // mỗi 10 phút
   };
@@ -67,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const initAuth = async () => {
       // Với localStorageShim, tokens đã được hydrate trước khi render App
-      const token = (global as any).localStorage?.getItem('authToken');
+      const token = (global as any).localStorage?.getItem('accessToken');
       const username = (global as any).localStorage?.getItem('username');
 
       try {

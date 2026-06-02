@@ -14,7 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const memoryStore: Record<string, string> = {};
 
 // ---- Keys cần hydrate từ AsyncStorage khi khởi động ----
-export const AUTH_STORAGE_KEYS = ['authToken', 'refreshToken', 'username'] as const;
+export const AUTH_STORAGE_KEYS = ['accessToken', 'refreshToken', 'username'] as const;
 
 // ---- Shim object ----
 const localStorageShim = {

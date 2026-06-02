@@ -126,8 +126,9 @@ const AuthScreen: React.FC<Props> = ({ navigation, route }) => {
         email: registerForm.email,
         username: registerForm.username,
         password: registerForm.password,
+        confirmPassword: registerForm.confirm_password,
       });
-      setErrorMsg((response.data as any)?.message ?? 'Registration successful! Please verify your email.');
+      setErrorMsg((response as any)?.message ?? (response.data as any)?.message ?? 'Registration successful! Please verify your email.');
       switchMode('login');
     } catch (err: any) {
       const data = err?.response?.data;
