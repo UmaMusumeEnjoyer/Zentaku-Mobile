@@ -19,6 +19,7 @@ import { useTheme } from '../context/ThemeContext';
 import { typography, spacing, radius } from '../styles/theme';
 import type { ThemeTokens } from '../styles/theme';
 import AnimeSection from '../components/AnimeSection/AnimeSection';
+import NewsSection from '../components/NewsSection/NewsSection';
 import Header from '../components/Header/Header';
 
 // ----------------------------------------------------------------
@@ -30,7 +31,7 @@ const HomeScreen: React.FC = () => {
   const { t } = useTranslation(['HomePage', 'common', 'mobile']);
   
   // Lấy dữ liệu từ shared-logic
-  const { trendingAnime, scheduledAnime, isLoading } = useHomeLogic();
+  const { trendingAnime, scheduledAnime, latestNews, isLoading } = useHomeLogic();
 
   const s = makeStyles(theme);
 
@@ -65,6 +66,12 @@ const HomeScreen: React.FC = () => {
           title={t('HomePage:new_releases', 'New Releases')}
           animeList={scheduledAnime}
           isLoading={isLoading}
+        />
+
+        {/* ---- News Section ---- */}
+        <NewsSection 
+          newsList={latestNews} 
+          isLoading={isLoading} 
         />
 
         {/* ---- Status Colors Demo (Khách hàng có thể giữ lại hoặc bỏ) ---- */}
