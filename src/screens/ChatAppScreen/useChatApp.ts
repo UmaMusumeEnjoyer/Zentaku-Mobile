@@ -1,155 +1,278 @@
-import { useEffect, useState } from 'react';
-import type { ChatMessage, ChatRoom, ChatUser, UseChatMessengerReturn } from './ChatAppScreen.types';
-
-const currentUser: ChatUser = {
-  id: 'u0',
-  name: 'You',
-  avatar: 'https://i.pravatar.cc/150?u=u0',
-  status: 'online',
-};
-const userA: ChatUser = {
-  id: 'u1',
-  name: 'Nguoi A',
-  avatar: 'https://i.pravatar.cc/150?u=u1',
-  status: 'online',
-};
-const userB: ChatUser = {
-  id: 'u2',
-  name: 'Nguoi B',
-  avatar: 'https://i.pravatar.cc/150?u=u2',
-  status: 'offline',
-};
-const userC: ChatUser = {
-  id: 'u3',
-  name: 'Nguoi C',
-  avatar: 'https://i.pravatar.cc/150?u=u3',
-  status: 'online',
-};
-const hinaBeliever1: ChatUser = {
-  id: 'u4',
-  name: 'Con chien so 1',
-  avatar: 'https://i.pravatar.cc/150?u=u4',
-  status: 'online',
-};
-const hinaBeliever2: ChatUser = {
-  id: 'u5',
-  name: 'Simp chua',
-  avatar: 'https://i.pravatar.cc/150?u=u5',
-  status: 'online',
-};
-
-const mockChatRooms: ChatRoom[] = [
-  {
-    id: 'c1',
-    type: 'dm',
-    name: 'Nguoi A',
-    members: [currentUser, userA],
-    messages: [
-      {
-        id: 'm1',
-        sender: userA,
-        content: 'Alo, toi da xem xong tap moi roi. Plot twist cuon that su.',
-        timestamp: '10:00',
-      },
-    ],
-  },
-  {
-    id: 'c2',
-    type: 'dm',
-    name: 'Nguoi B',
-    members: [currentUser, userB],
-    messages: [
-      {
-        id: 'm2',
-        sender: userB,
-        content: 'Minh vua note lai lich anime mua nay, ban can gui qua khong?',
-        timestamp: 'Hom qua',
-      },
-    ],
-  },
-  {
-    id: 'c3',
-    type: 'dm',
-    name: 'Nguoi C',
-    members: [currentUser, userC],
-    messages: [
-      {
-        id: 'm3',
-        sender: userC,
-        content: 'Cuoi tuan hop team xem phim nhe, toi da chuan bi list roi.',
-        timestamp: '08:30',
-      },
-    ],
-  },
-  {
-    id: 'c4',
-    type: 'server',
-    name: 'Hoi thanh mau Youmiya',
-    description: 'Noi thaoluan va chia se khoanh khac de thuong cua Hina',
-    members: [currentUser, hinaBeliever1, hinaBeliever2],
-    messages: [
-      {
-        id: 'm4',
-        sender: hinaBeliever1,
-        content: 'Hom nay stream vui qua, doan hat cuoi day cam xuc.',
-        timestamp: '11:00',
-      },
-      {
-        id: 'm5',
-        sender: hinaBeliever2,
-        content: 'Dong y, background nhac qua hop voi chu de tap nay.',
-        timestamp: '11:05',
-      },
-      {
-        id: 'm6',
-        sender: currentUser,
-        content: 'Ai co lich event sap toi thi thong bao cho moi nguoi voi nhe.',
-        timestamp: '11:10',
-      },
-    ],
-  },
-];
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Alert } from 'react-native';
+import { chatService, socketService } from '@umamusumeenjoyer/shared-logic';
+import type { UseChatMessengerReturn, ChatRoom, Message, User } from './ChatAppScreen.types';
+import { useAuth } from '../../context/AuthContext';
 
 export const useChatMessenger = (): UseChatMessengerReturn => {
+  const { user } = useAuth();
+  
+  const currentUser: User = {
+    id: user?.id ? String(user.id) : 'unknown',
+    name: user?.displayName || user?.username || 'Guest',
+    avatar: user?.avatar || 'https://i.pravatar.cc/150',
+    status: 'online'
+  };
+
   const [chatRooms, setChatRooms] = useState<ChatRoom[] | null>(null);
-  const [activeRoomId, setActiveRoomId] = useState<string>('c4');
+  const [privateRooms, setPrivateRooms] = useState<ChatRoom[] | null>(null);
+  const [activeRoomId, setActiveRoomId] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  
+  // Mobile doesn't use URL params, just default to empty
+  const initialChannelId = null;
 
+  // Rate Limiting for Send Message (5 msgs/sec)
+  const messageTimestamps = useRef<number[]>([]);
+
+  // 1. Connect Socket and Fetch Rooms
   useEffect(() => {
-    const fetchChats = async () => {
+    socketService.connect();
+
+    const fetchRooms = async () => {
       try {
         setLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setChatRooms(mockChatRooms);
-      } catch {
-        setError(new Error('Failed to load chats'));
+        // Fetch Community Channels
+        const commRes = await chatService.getCommunities();
+        const communities = Array.isArray(commRes.data) ? commRes.data : commRes.data?.data || [];
+        const allChannels: ChatRoom[] = [];
+        
+        for (const comm of communities) {
+          const chanRes = await chatService.getCommunityChannels(comm.id);
+          const channels = Array.isArray(chanRes.data) ? chanRes.data : chanRes.data?.data || [];
+          
+          channels.forEach((ch: any) => {
+            allChannels.push({
+              id: String(ch.id),
+              type: ch.type || 'server',
+              name: ch.name || `Channel ${ch.id}`,
+              description: ch.description || '',
+              members: [], 
+              messages: [],
+            });
+          });
+        }
+        setChatRooms(allChannels);
+
+        // Fetch Private Channels (DMs)
+        const privateRes = await chatService.getPrivateChannels();
+        const privateData = Array.isArray(privateRes.data) ? privateRes.data : privateRes.data?.data || [];
+        const allPrivate: ChatRoom[] = [];
+
+        privateData.forEach((ch: any) => {
+          // Identify the other participant
+          const otherParticipant = ch.participants?.find((p: any) => p.user?.id !== currentUser.id)?.user;
+          const roomName = otherParticipant?.displayName || otherParticipant?.username || `DM ${ch.id}`;
+          const avatar = otherParticipant?.avatar || 'https://i.pravatar.cc/150';
+
+          allPrivate.push({
+            id: String(ch.id),
+            type: 'dm',
+            name: roomName,
+            avatar,
+            members: [], 
+            messages: [],
+          });
+        });
+        setPrivateRooms(allPrivate);
+
+        // Set initial active room if not set
+        if (initialChannelId) {
+          setActiveRoomId(initialChannelId);
+        } else if (allPrivate.length > 0) {
+          setActiveRoomId(allPrivate[0].id);
+        } else if (allChannels.length > 0) {
+          setActiveRoomId(allChannels[0].id);
+        }
+
+      } catch (err: any) {
+        console.error('Failed to load chat channels:', err);
+        setError(new Error(err.message || 'Failed to load chats'));
       } finally {
         setLoading(false);
       }
     };
-    fetchChats();
-  }, []);
+    
+    fetchRooms();
 
-  const activeRoom = chatRooms?.find((room) => room.id === activeRoomId) || null;
+    return () => {
+      socketService.disconnect();
+    };
+  }, [initialChannelId, currentUser.id]);
 
-  const sendMessage = (content: string) => {
-    if (!chatRooms || !activeRoomId || !content.trim()) return;
+  // Ref to track which rooms have fetched their initial messages
+  const loadedRoomsRef = useRef<Set<string>>(new Set());
 
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      sender: currentUser,
-      content,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  // 2. Fetch Messages for Active Room
+  useEffect(() => {
+    if (!activeRoomId) return;
+
+    const isCommunity = chatRooms?.some(r => r.id === activeRoomId);
+    
+    // Prevent infinite loop if the room has 0 messages
+    if (loadedRoomsRef.current.has(activeRoomId)) return;
+
+    const fetchMessages = async () => {
+      try {
+        const msgRes = await chatService.getChannelMessages(activeRoomId);
+        const messagesData = Array.isArray(msgRes.data) ? msgRes.data : msgRes.data?.items || msgRes.data?.data || [];
+        
+        const mappedMessages: Message[] = messagesData.reverse().map((m: any) => ({
+          id: String(m.id),
+          sender: {
+            id: String(m.sender?.id || m.senderId || 'unknown'),
+            name: m.sender?.displayName || m.sender?.username || 'Unknown User',
+            avatar: m.sender?.avatar || 'https://i.pravatar.cc/150',
+            status: 'online'
+          },
+          content: m.content || '',
+          timestamp: m.createdAt ? new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }));
+
+        if (isCommunity) {
+          setChatRooms(prev => prev?.map(room => room.id === activeRoomId ? { ...room, messages: mappedMessages } : room) || null);
+        } else {
+          setPrivateRooms(prev => prev?.map(room => room.id === activeRoomId ? { ...room, messages: mappedMessages } : room) || null);
+        }
+        
+        // Mark as loaded successfully
+        loadedRoomsRef.current.add(activeRoomId);
+
+      } catch (err) {
+        console.error('Failed to fetch messages for room', activeRoomId, err);
+      }
     };
 
-    setChatRooms(
-      (prev) =>
-        prev?.map((room) =>
-          room.id === activeRoomId ? { ...room, messages: [...room.messages, newMessage] } : room
-        ) || null
-    );
-  };
+    fetchMessages();
+  }, [activeRoomId, chatRooms, privateRooms]);
 
-  return { chatRooms, activeRoom, loading, error, setActiveRoomId, sendMessage };
+  // Join and Leave Room via Socket
+  useEffect(() => {
+    if (!activeRoomId) return;
+    
+    // Join new room
+    socketService.emit('room.join', { channelId: activeRoomId });
+
+    return () => {
+      // Leave room on unmount or activeRoomId change
+      socketService.emit('room.leave', { channelId: activeRoomId });
+    };
+  }, [activeRoomId]);
+
+  // 3. Socket Event Listeners
+  useEffect(() => {
+    const unsubMessageCreated = socketService.on('message.created', (data: any) => {
+      const channelId = String(data.channelId);
+      
+      const incomingMsg: Message = {
+        id: String(data.id),
+        sender: {
+          id: String(data.sender?.id || data.senderId),
+          name: data.sender?.displayName || data.sender?.username || 'User',
+          avatar: data.sender?.avatar || 'https://i.pravatar.cc/150',
+          status: 'online'
+        },
+        content: data.content,
+        timestamp: new Date(data.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      // Update the correct room
+      const updateRoom = (rooms: ChatRoom[] | null) => {
+        if (!rooms) return null;
+        return rooms.map(room => {
+          if (room.id === channelId) {
+            // Check if message already exists (optimistic UI)
+            if (!room.messages.some(m => m.id === incomingMsg.id || m.content === incomingMsg.content && m.sender.id === incomingMsg.sender.id)) {
+              return { ...room, messages: [...room.messages, incomingMsg] };
+            }
+          }
+          return room;
+        });
+      };
+
+      setChatRooms(prev => updateRoom(prev));
+      setPrivateRooms(prev => updateRoom(prev));
+      
+      if (channelId === activeRoomId) {
+        // Mark as read
+        socketService.emit('read.cursor.update', { channelId, lastReadMessageId: data.id });
+      }
+    });
+
+    const unsubTypingStarted = socketService.on('typing.started', (data: any) => {
+      if (String(data.channelId) === activeRoomId && String(data.userId) !== currentUser.id) {
+        setTypingUsers(prev => [...new Set([...prev, String(data.userId)])]);
+      }
+    });
+
+    const unsubTypingStopped = socketService.on('typing.stopped', (data: any) => {
+      if (String(data.channelId) === activeRoomId) {
+        setTypingUsers(prev => prev.filter(id => id !== String(data.userId)));
+      }
+    });
+
+    return () => {
+      unsubMessageCreated();
+      unsubTypingStarted();
+      unsubTypingStopped();
+    };
+  }, [activeRoomId, currentUser.id]);
+
+  // Helper to find the active room from either list
+  const activeRoom = chatRooms?.find(r => r.id === activeRoomId) || privateRooms?.find(r => r.id === activeRoomId) || null;
+
+  const sendMessage = useCallback(async (content: string) => {
+    if (!activeRoomId || !content.trim()) return;
+
+    // Rate Limit Check
+    const now = Date.now();
+    messageTimestamps.current = messageTimestamps.current.filter(t => now - t < 1000);
+    if (messageTimestamps.current.length >= 5) {
+      Alert.alert('Rate limit exceeded', 'You can only send 5 messages per second.');
+      return;
+    }
+    messageTimestamps.current.push(now);
+    
+    const tempId = `temp-${Date.now()}`;
+    const newMessage: Message = {
+      id: tempId,
+      sender: currentUser,
+      content,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    // Optimistic UI Update
+    const updateOptimistic = (rooms: ChatRoom[] | null) => {
+      return rooms?.map(room => 
+        room.id === activeRoomId 
+          ? { ...room, messages: [...room.messages, newMessage] } 
+          : room
+      ) || null;
+    };
+
+    if (chatRooms?.some(r => r.id === activeRoomId)) {
+      setChatRooms(updateOptimistic);
+    } else {
+      setPrivateRooms(updateOptimistic);
+    }
+
+    try {
+      // Send via REST API
+      const response = await chatService.sendMessage(activeRoomId, { content });
+      
+      // Update temp id to real id if possible
+      const realData = response.data?.data || response.data;
+      if (realData?.id) {
+         // Optionally update the ID in state to avoid duplicates if socket event arrives late
+      }
+      socketService.emit('read.cursor.update', { channelId: activeRoomId, lastReadMessageId: realData?.id || tempId });
+    } catch (err: any) {
+      console.error('Failed to send message', err);
+      Alert.alert('Error', err.response?.data?.error?.message || 'Failed to send message');
+    }
+  }, [activeRoomId, chatRooms, privateRooms, currentUser]);
+
+  return { chatRooms, privateRooms, activeRoom, loading, error, setActiveRoomId, sendMessage, typingUsers };
 };

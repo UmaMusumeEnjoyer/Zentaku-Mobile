@@ -14,13 +14,17 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import createStyles from './ChatAppScreen.style';
 import { useChatMessenger } from './useChatApp';
-import type { ChatMessage, ChatRoom, ChatUser } from './ChatAppScreen.types';
+import type { Message, ChatRoom, User } from './ChatAppScreen.types';
 
 const ChatAppScreen: React.FC = () => {
   const { theme } = useTheme();
   const styles = createStyles(theme);
-  const { chatRooms, activeRoom, loading, error, setActiveRoomId, sendMessage } = useChatMessenger();
+  const { chatRooms, privateRooms, activeRoom, loading, error, setActiveRoomId, sendMessage, typingUsers } = useChatMessenger();
   const [inputValue, setInputValue] = useState('');
+
+  const allRooms = useMemo(() => {
+    return [...(chatRooms || []), ...(privateRooms || [])];
+  }, [chatRooms, privateRooms]);
 
   const onlineMembers = useMemo(
     () => activeRoom?.members.filter((member) => member.status === 'online') ?? [],
@@ -42,16 +46,16 @@ const ChatAppScreen: React.FC = () => {
     );
   }
 
-  if (error || !chatRooms || !activeRoom) {
+  if (error || !allRooms || !activeRoom) {
     return (
       <View style={styles.loaderContainer}>
-        <Text style={styles.errorText}>Da xay ra loi tai du lieu chat.</Text>
+        <Text style={styles.errorText}>Đã xảy ra lỗi tải dữ liệu chat: {error?.message}</Text>
       </View>
     );
   }
 
   const renderRoomCard = (room: ChatRoom) => {
-    const peer = room.members[room.members.length - 1] || room.members[0];
+    const avatarUri = room.avatar || `https://i.pravatar.cc/150?u=${room.id}`;
     const isActive = activeRoom.id === room.id;
     const lastMessage = room.messages[room.messages.length - 1]?.content ?? 'No messages yet';
 
@@ -62,13 +66,15 @@ const ChatAppScreen: React.FC = () => {
         style={[styles.roomCard, isActive && styles.roomCardActive]}
       >
         <View style={styles.avatarWrap}>
-          <Image source={{ uri: peer.avatar }} style={styles.avatar} />
-          <View
-            style={[
-              styles.statusDot,
-              peer.status === 'online' ? styles.statusDotOnline : styles.statusDotOffline,
-            ]}
-          />
+          <Image source={{ uri: avatarUri }} style={styles.avatar} />
+          {room.type === 'dm' && (
+            <View
+              style={[
+                styles.statusDot,
+                styles.statusDotOnline, // For now, assume online or parse from members if available
+              ]}
+            />
+          )}
         </View>
         <View style={styles.roomInfo}>
           <Text numberOfLines={1} style={styles.roomName}>
@@ -82,13 +88,13 @@ const ChatAppScreen: React.FC = () => {
     );
   };
 
-  const renderMemberChip = (member: ChatUser) => (
+  const renderMemberChip = (member: User) => (
     <View key={member.id} style={styles.memberChip}>
       <Text style={styles.memberChipText}>{member.name}</Text>
     </View>
   );
 
-  const renderMessage = ({ item }: { item: ChatMessage }) => (
+  const renderMessage = ({ item }: { item: Message }) => (
     <View style={styles.messageRow}>
       <Image source={{ uri: item.sender.avatar }} style={styles.messageAvatar} />
       <View style={styles.messageBubble}>
@@ -121,16 +127,18 @@ const ChatAppScreen: React.FC = () => {
             contentContainerStyle={styles.roomListContent}
             showsHorizontalScrollIndicator={false}
           >
-            {chatRooms.map(renderRoomCard)}
+            {allRooms.map(renderRoomCard)}
           </ScrollView>
         </View>
 
-        <View style={styles.onlinePanel}>
-          <Text style={styles.memberTitle}>Online - {onlineMembers.length}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.memberRow}>
-            {onlineMembers.map(renderMemberChip)}
-          </ScrollView>
-        </View>
+        {onlineMembers.length > 0 && (
+          <View style={styles.onlinePanel}>
+            <Text style={styles.memberTitle}>Online - {onlineMembers.length}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.memberRow}>
+              {onlineMembers.map(renderMemberChip)}
+            </ScrollView>
+          </View>
+        )}
 
         <View style={styles.messagesContainer}>
           <FlatList
@@ -138,15 +146,24 @@ const ChatAppScreen: React.FC = () => {
             keyExtractor={(item) => item.id}
             renderItem={renderMessage}
             showsVerticalScrollIndicator={false}
+            inverted={false}
           />
         </View>
+
+        {typingUsers.length > 0 && (
+          <View style={{ paddingHorizontal: 16, paddingBottom: 4 }}>
+            <Text style={{ color: theme.textSecondary, fontSize: 12, fontStyle: 'italic' }}>
+              Someone is typing...
+            </Text>
+          </View>
+        )}
 
         <View style={styles.inputRow}>
           <TextInput
             style={styles.inputField}
             value={inputValue}
             onChangeText={setInputValue}
-            placeholder={`Gui tin nhan toi ${activeRoom.name}`}
+            placeholder={`Gửi tin nhắn tới ${activeRoom.name}`}
             placeholderTextColor={theme.textSecondary}
             returnKeyType="send"
             onSubmitEditing={submitMessage}

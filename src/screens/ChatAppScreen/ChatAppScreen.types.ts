@@ -1,15 +1,17 @@
-export interface ChatUser {
+export interface User {
   id: string;
   name: string;
   avatar: string;
   status: 'online' | 'offline';
+  activity?: string;
 }
 
-export interface ChatMessage {
+export interface Message {
   id: string;
-  sender: ChatUser;
+  sender: User;
   content: string;
   timestamp: string;
+  attachment?: string;
 }
 
 export interface ChatRoom {
@@ -17,15 +19,19 @@ export interface ChatRoom {
   type: 'dm' | 'server';
   name: string;
   description?: string;
-  members: ChatUser[];
-  messages: ChatMessage[];
+  avatar?: string;
+  members: User[];
+  messages: Message[];
+  unreadCount?: number;
 }
 
 export interface UseChatMessengerReturn {
   chatRooms: ChatRoom[] | null;
+  privateRooms: ChatRoom[] | null;
   activeRoom: ChatRoom | null;
   loading: boolean;
   error: Error | null;
   setActiveRoomId: (id: string) => void;
   sendMessage: (content: string) => void;
+  typingUsers: string[];
 }
