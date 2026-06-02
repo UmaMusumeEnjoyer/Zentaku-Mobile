@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { useAnimeDetail } from '@umamusumeenjoyer/shared-logic';
+import { useAnimeDetail, streamingService } from '@umamusumeenjoyer/shared-logic';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { typography, spacing, radius } from '../../styles/theme';
@@ -42,28 +42,7 @@ type StreamData = {
   referer: string | null;
 };
 
-const DEFAULT_BACKEND = '/api';
 
-const toSafeHttpUrl = (value: string) => {
-  try {
-    const url = new URL(value);
-    return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : null;
-  } catch {
-    return null;
-  }
-};
-
-const getApiBaseUrl = () => {
-  const configuredBase = ENV.API_BASE_URL?.trim();
-  if (configuredBase) return configuredBase.replace(/\/$/, '');
-
-  const backendDomain = ENV.BACKEND_DOMAIN?.trim();
-  if (backendDomain) {
-    return `${backendDomain.replace(/\/$/, '')}/api`;
-  }
-
-  return DEFAULT_BACKEND;
-};
 
 const stripHtml = (value?: string | null) => {
   if (!value) return '';
@@ -86,16 +65,13 @@ const AnimeWatchScreen: React.FC<Props> = ({ route, navigation }) => {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [currentEpisode, setCurrentEpisode] = useState<Episode | null>(null);
   const [servers] = useState<Server[]>([
-    { id: 'hd-1', name: 'Vidstreaming (HD-1)', type: 'sub' },
-    { id: 'hd-2', name: 'Vidcloud (HD-2)', type: 'sub' },
+    { id: 'auto', name: 'Zentaku Server (Auto)', type: 'sub' },
   ]);
-  const [activeServerId, setActiveServerId] = useState('hd-1');
+  const [activeServerId, setActiveServerId] = useState('auto');
   const [streamData, setStreamData] = useState<StreamData | null>(null);
   const [loadingEpisodes, setLoadingEpisodes] = useState(false);
   const [loadingStream, setLoadingStream] = useState(false);
   const [watchError, setWatchError] = useState<string | null>(null);
-
-  const apiBaseUrl = getApiBaseUrl();
   const bannerHeight = Math.min(Math.max(width * 0.56, 220), 320);
   const s = makeStyles(theme, bannerHeight);
 
@@ -111,17 +87,15 @@ const AnimeWatchScreen: React.FC<Props> = ({ route, navigation }) => {
       setLoadingEpisodes(true);
 
       try {
-        const response = await fetch(`${apiBaseUrl}/anime/${encodeURIComponent(id)}/episodes`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch episodes');
-        }
+        const response = await streamingService.getEpisodes(id);
+        const data = response.data;
+        const rawEpisodes = Array.isArray(data) ? data : data?.episodes || [];
 
-        const data = await response.json();
-        const mappedEpisodes: Episode[] = (data.episodes || [])
+        const mappedEpisodes: Episode[] = rawEpisodes
           .map((episode: any) => ({
-            id: String(episode.episodeId ?? episode.id),
+            id: String(episode.id || episode.episodeId || episode.number),
             number: Number(episode.number ?? 0),
-            title: String(episode.title ?? `Episode ${episode.number ?? ''}`).trim(),
+            title: String(episode.title || `Episode ${episode.number ?? ''}`).trim(),
           }))
           .sort((left: Episode, right: Episode) => left.number - right.number);
 
@@ -149,7 +123,7 @@ const AnimeWatchScreen: React.FC<Props> = ({ route, navigation }) => {
     return () => {
       isMounted = false;
     };
-  }, [apiBaseUrl, id]);
+  }, [id]);
 
   useEffect(() => {
     if (!currentEpisode) {
@@ -164,22 +138,24 @@ const AnimeWatchScreen: React.FC<Props> = ({ route, navigation }) => {
       setWatchError(null);
 
       try {
-        const response = await fetch(
-          `${apiBaseUrl}/anime/episode-src?id=${encodeURIComponent(currentEpisode.id)}&server=${encodeURIComponent(activeServerId)}&category=sub`,
-        );
+        const response = await streamingService.getEpisodeSources(id, currentEpisode.number);
+        const data = response.data;
 
-        if (!response.ok) {
-          throw new Error('Unable to load stream source');
-        }
-
-        const data = await response.json();
+        const innerData = data.data;
+        const videoUrl = innerData?.streamLinks?.[0] || data.video || (data.sources && data.sources[0]?.url) || '';
+        const subUrl = innerData?.subtitles?.find((s: any) => s.lang === 'en' || s.lang?.toLowerCase() === 'english')?.url || data.sub || (data.subtitles && data.subtitles.find((s: any) => s.lang?.toLowerCase() === 'english')?.url) || null;
+        const referer = data.referer || data.headers?.Referer || null;
 
         if (!isMounted) return;
 
+        if (!videoUrl) {
+          throw new Error('Video source not found');
+        }
+
         setStreamData({
-          videoUrl: String(data.video ?? ''),
-          subUrl: data.sub ? String(data.sub) : null,
-          referer: data.referer ? String(data.referer) : null,
+          videoUrl: String(videoUrl),
+          subUrl: subUrl ? String(subUrl) : null,
+          referer: referer ? String(referer) : null,
         });
       } catch (fetchError) {
         if (!isMounted) return;
@@ -198,18 +174,15 @@ const AnimeWatchScreen: React.FC<Props> = ({ route, navigation }) => {
     return () => {
       isMounted = false;
     };
-  }, [activeServerId, apiBaseUrl, currentEpisode]);
+  }, [id, currentEpisode]);
 
   const playerSource = useMemo(() => {
     if (!streamData?.videoUrl) return null;
 
-    const safeVideoUrl = toSafeHttpUrl(streamData.videoUrl);
-    if (!safeVideoUrl) return null;
-
     return {
-      uri: safeVideoUrl,
-      headers: { Referer: new URL(safeVideoUrl).origin },
-      contentType: safeVideoUrl.includes('.m3u8') ? 'hls' : 'auto',
+      uri: streamData.videoUrl,
+      headers: streamData.referer ? { Referer: streamData.referer } : undefined,
+      contentType: streamData.videoUrl.includes('.m3u8') ? 'hls' : 'auto',
       useCaching: true,
     } as const;
   }, [streamData]);
