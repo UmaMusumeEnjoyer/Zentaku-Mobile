@@ -22,7 +22,7 @@ export type MainStackParamList = {
   AnimeSearch: { initialFilters?: Record<string, string> } | undefined;
   AnimeList: undefined;
   /** Watch-along/social watch screen */
-  WatchAlong: undefined;
+  WatchAlong: { roomId?: string } | undefined;
   /** Chat screen converted from web ChatApp */
   ChatApp: undefined;
   Profile: undefined;
