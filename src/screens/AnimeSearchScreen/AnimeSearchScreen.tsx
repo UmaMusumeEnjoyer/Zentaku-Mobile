@@ -21,8 +21,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AnimeCard from '../../components/AnimeCard/AnimeCard';
 import AnimeSection from '../../components/AnimeSection/AnimeSection';
-import { animeService } from '@umamusumeenjoyer/shared-logic/dist/services/anime.service';
-import { heroList, trendingAnime, popularSeason, upcomingNext, allTimePopular } from '@umamusumeenjoyer/shared-logic/dist/features/animeSearch/animeSearchConstants';
+import { searchService } from '@umamusumeenjoyer/shared-logic/dist/services/search.service';
+import { heroList } from '@umamusumeenjoyer/shared-logic/dist/features/animeSearch/animeSearchConstants';
 import { filterData, GENRE_I18N_MAP } from '@umamusumeenjoyer/shared-logic/dist/features/animeSearch/components/filterBar/filter.data';
 import { getCurrentSeasonInfo, getNextSeasonInfo } from '@umamusumeenjoyer/shared-logic/dist/shared/utils/seasonUtils';
 import { useTheme } from '../../context/ThemeContext';
@@ -65,15 +65,15 @@ const mapAnimeData = (rawItem: any): AnimeType => ({
   ...rawItem,
   id: rawItem.id,
   anilist_id: rawItem.id,
-  title_romaji: rawItem.title_romaji || rawItem.name_romaji || rawItem.romaji,
-  name_romaji: rawItem.name_romaji || rawItem.romaji,
-  name_english: rawItem.name_english || rawItem.english,
-  name_native: rawItem.name_native || rawItem.native,
-  cover_image: rawItem.cover_image || rawItem.cover,
-  episodes: rawItem.airing_episodes || rawItem.episodes,
-  average_score: rawItem.average_score,
+  title_romaji: rawItem.title?.romaji || rawItem.title_romaji || rawItem.name_romaji || rawItem.romaji,
+  name_romaji: rawItem.title?.romaji || rawItem.name_romaji || rawItem.romaji,
+  name_english: rawItem.title?.english || rawItem.name_english || rawItem.english,
+  name_native: rawItem.title?.native || rawItem.name_native || rawItem.native,
+  cover_image: rawItem.coverImage?.extraLarge || rawItem.coverImage?.large || rawItem.cover_image || rawItem.cover,
+  episodes: rawItem.episodes || rawItem.airing_episodes,
+  average_score: rawItem.averageScore || rawItem.average_score,
   season: rawItem.season,
-  next_airing_ep: rawItem.next_airing_ep ?? null,
+  next_airing_ep: (rawItem.nextAiringEpisode || rawItem.next_airing_ep) ?? null,
 });
 
 const AnimeSearchScreen: React.FC<Props> = () => {
@@ -96,6 +96,11 @@ const AnimeSearchScreen: React.FC<Props> = () => {
     filters: AnimeFilters;
     hasFilter?: boolean;
   } | null>(null);
+
+  const [trendingData, setTrendingData] = useState<AnimeType[]>([]);
+  const [popularSeasonData, setPopularSeasonData] = useState<AnimeType[]>([]);
+  const [upcomingNextData, setUpcomingNextData] = useState<AnimeType[]>([]);
+  const [allTimePopularData, setAllTimePopularData] = useState<AnimeType[]>([]);
 
   const requestIdRef = useRef(0);
 
@@ -120,6 +125,48 @@ const AnimeSearchScreen: React.FC<Props> = () => {
 
     await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(stateToSave));
   }, [isSearching, results, viewTitle, page, canLoadMore, currentFilters]);
+
+  useEffect(() => {
+    if (mode === 'HOME' && !trendingData.length && !loading) {
+      const loadSectionData = async () => {
+        try {
+          const [trendingRes, currentSeasonRes, nextSeasonRes, popularRes] = await Promise.allSettled([
+            searchService.getTrending('anime', 1, 10),
+            searchService.getCurrentSeasonal(1, 10),
+            searchService.getNextSeasonal(1, 10),
+            searchService.getPopular('anime', 1, 10),
+          ]);
+
+          if (trendingRes.status === 'fulfilled') {
+            const data = trendingRes.value.data;
+            const items = data?.trending || data?.items || data || [];
+            setTrendingData(Array.isArray(items) ? items.map(mapAnimeData) : []);
+          }
+
+          if (currentSeasonRes.status === 'fulfilled') {
+            const data = currentSeasonRes.value.data;
+            const items = data?.items || data || [];
+            setPopularSeasonData(Array.isArray(items) ? items.map(mapAnimeData) : []);
+          }
+
+          if (nextSeasonRes.status === 'fulfilled') {
+            const data = nextSeasonRes.value.data;
+            const items = data?.items || data || [];
+            setUpcomingNextData(Array.isArray(items) ? items.map(mapAnimeData) : []);
+          }
+
+          if (popularRes.status === 'fulfilled') {
+            const data = popularRes.value.data;
+            const items = data?.trending || data?.items || data || [];
+            setAllTimePopularData(Array.isArray(items) ? items.map(mapAnimeData) : []);
+          }
+        } catch (error) {
+          console.error("Failed to load section data:", error);
+        }
+      };
+      loadSectionData();
+    }
+  }, [mode, trendingData.length, loading]);
 
   useEffect(() => {
     const restoreSession = async () => {
@@ -195,7 +242,7 @@ const AnimeSearchScreen: React.FC<Props> = () => {
         let mappedResults: AnimeType[] = [];
 
         if (hasFilter || hasNonDefaultSort) {
-          const criteriaBody: any = { page: 1, perpage: PAGE_SIZE };
+          const criteriaBody: any = { page: 1, perPage: PAGE_SIZE };
 
           if (nextFilters.year && nextFilters.year !== 'Any') criteriaBody.year = parseInt(nextFilters.year.toString(), 10);
           if (nextFilters.season && nextFilters.season !== 'Any') criteriaBody.season = nextFilters.season;
@@ -203,22 +250,22 @@ const AnimeSearchScreen: React.FC<Props> = () => {
           if (nextFilters.genre && nextFilters.genre !== 'Any') criteriaBody.genres = nextFilters.genre;
           if (nextFilters.status && nextFilters.status !== 'Any') criteriaBody.status = nextFilters.status;
           if (nextFilters.sort) criteriaBody.sort = nextFilters.sort;
-          if (trimmedKeyword) criteriaBody.search = trimmedKeyword;
+          if (trimmedKeyword) criteriaBody.q = trimmedKeyword;
 
-          const response = await animeService.searchAnimeByCriteria(criteriaBody);
-          const rawResults = response?.data?.results || [];
-          mappedResults = rawResults.map(mapAnimeData);
+          const response = await searchService.searchAnime(criteriaBody);
+          const rawResults = response?.data?.items || response?.data || [];
+          mappedResults = Array.isArray(rawResults) ? rawResults.map(mapAnimeData) : [];
 
           if (requestId === requestIdRef.current) {
-            setCanLoadMore(rawResults.length === PAGE_SIZE);
+            setCanLoadMore(response?.data?.pageInfo?.hasNextPage ?? rawResults.length === PAGE_SIZE);
           }
         } else {
-          const response = await animeService.searchByName(trimmedKeyword);
-          const rawCandidates = response?.data?.candidates || [];
-          mappedResults = rawCandidates.map(mapAnimeData);
+          const response = await searchService.searchAnime({ q: trimmedKeyword, page: 1, perPage: PAGE_SIZE });
+          const rawCandidates = response?.data?.items || response?.data || [];
+          mappedResults = Array.isArray(rawCandidates) ? rawCandidates.map(mapAnimeData) : [];
 
           if (requestId === requestIdRef.current) {
-            setCanLoadMore(false);
+            setCanLoadMore(response?.data?.pageInfo?.hasNextPage ?? rawCandidates.length === PAGE_SIZE);
           }
         }
 
@@ -272,10 +319,11 @@ const AnimeSearchScreen: React.FC<Props> = () => {
       try {
         if (type === 'TRENDING_NOW') {
           setViewTitle(t('sections.trendingNow', 'Trending Now'));
-          const response = await animeService.getTrending();
-          const rawResults = response?.data?.trending || [];
+          const response = await searchService.getTrending('anime');
+          const responseData = response?.data;
+          const rawResults = responseData?.trending || responseData?.items || responseData || [];
           if (requestId === requestIdRef.current) {
-            setResults(rawResults.map(mapAnimeData));
+            setResults(Array.isArray(rawResults) ? rawResults.map(mapAnimeData) : []);
           }
           return;
         }
@@ -323,7 +371,7 @@ const AnimeSearchScreen: React.FC<Props> = () => {
 
     try {
       const { keyword, filters: activeFilters } = currentFilters;
-      const criteriaBody: any = { page: nextPage, perpage: PAGE_SIZE };
+      const criteriaBody: any = { page: nextPage, perPage: PAGE_SIZE };
 
       if (activeFilters.year && activeFilters.year !== 'Any') criteriaBody.year = parseInt(activeFilters.year.toString(), 10);
       if (activeFilters.season && activeFilters.season !== 'Any') criteriaBody.season = activeFilters.season;
@@ -331,16 +379,17 @@ const AnimeSearchScreen: React.FC<Props> = () => {
       if (activeFilters.genre && activeFilters.genre !== 'Any') criteriaBody.genres = activeFilters.genre;
       if (activeFilters.status && activeFilters.status !== 'Any') criteriaBody.status = activeFilters.status;
       if (activeFilters.sort) criteriaBody.sort = activeFilters.sort;
-      if (keyword && keyword.trim() !== '') criteriaBody.search = keyword.trim();
+      if (keyword && keyword.trim() !== '') criteriaBody.q = keyword.trim();
 
-      const response = await animeService.searchAnimeByCriteria(criteriaBody);
-      const rawResults = response?.data?.results || [];
-      const mapped = rawResults.map(mapAnimeData);
+      const response = await searchService.searchAnime(criteriaBody);
+      const responseData = response?.data;
+      const rawResults = responseData?.items || responseData || [];
+      const mapped = Array.isArray(rawResults) ? rawResults.map(mapAnimeData) : [];
 
       if (requestId === requestIdRef.current) {
         setResults((prev) => [...prev, ...mapped]);
         setPage(nextPage);
-        setCanLoadMore(rawResults.length === PAGE_SIZE);
+        setCanLoadMore(responseData?.pageInfo?.hasNextPage ?? rawResults.length === PAGE_SIZE);
       }
     } catch (error) {
       if (requestId === requestIdRef.current) {
@@ -566,25 +615,25 @@ const AnimeSearchScreen: React.FC<Props> = () => {
 
             <AnimeSection
               title={t('sections.trendingNow', 'Trending Now')}
-              animeList={trendingAnime as any}
+              animeList={trendingData as any}
               onViewAll={() => handleViewAllClick('TRENDING_NOW')}
               viewAllLabel={t('buttons.view_all', 'View All')}
             />
             <AnimeSection
               title={t('sections.popularThisSeason', 'Popular This Season')}
-              animeList={popularSeason as any}
+              animeList={popularSeasonData as any}
               onViewAll={() => handleViewAllClick('POPULAR_THIS_SEASON')}
               viewAllLabel={t('buttons.view_all', 'View All')}
             />
             <AnimeSection
               title={t('sections.upcomingNextSeason', 'Upcoming Next Season')}
-              animeList={upcomingNext as any}
+              animeList={upcomingNextData as any}
               onViewAll={() => handleViewAllClick('UPCOMING_NEXT_SEASON')}
               viewAllLabel={t('buttons.view_all', 'View All')}
             />
             <AnimeSection
               title={t('sections.allTimePopular', 'All Time Popular')}
-              animeList={allTimePopular as any}
+              animeList={allTimePopularData as any}
             />
           </ScrollView>
         )}
