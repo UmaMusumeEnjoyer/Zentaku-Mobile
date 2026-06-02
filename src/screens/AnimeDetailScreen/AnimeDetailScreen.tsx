@@ -236,8 +236,7 @@ const AnimeDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           if (isManga) {
             navigation.navigate('MangaReader', { mangaId: id });
           } else if (isNovel) {
-            // navigation.navigate('NovelReader', { novelId: id });
-            console.log('NovelReader coming soon');
+            navigation.navigate('NovelReader', { novelId: id });
           } else {
             navigation.navigate('AnimeWatch', { id });
           }

@@ -47,6 +47,8 @@ export type RootStackParamList = {
   StaffDetail: { id: string };
   /** Màn hình đọc Manga */
   MangaReader: { mangaId: string; chapterId?: string };
+  /** Màn hình đọc Novel */
+  NovelReader: { novelId: string; chapterId?: string };
 };
 
 declare global {

@@ -34,6 +34,7 @@ import AnimeWatchScreen from './src/screens/AnimeWatchScreen';
 import CharacterScreen from './src/screens/CharacterScreen';
 import StaffScreen from './src/screens/StaffScreen';
 import MangaReaderScreen from './src/screens/MangaReaderScreen';
+import NovelReaderScreen from './src/screens/NovelReaderScreen';
 
 import type { RootStackParamList } from './src/navigation/types';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -98,6 +99,7 @@ const RootNavigator: React.FC = () => {
               <Stack.Screen name="CharacterDetail" component={CharacterScreen} />
               <Stack.Screen name="StaffDetail" component={StaffScreen} />
               <Stack.Screen name="MangaReader" component={MangaReaderScreen} />
+              <Stack.Screen name="NovelReader" component={NovelReaderScreen} />
             </>
           ) : (
             // ---- Chưa đăng nhập ----
@@ -116,6 +118,7 @@ const RootNavigator: React.FC = () => {
               <Stack.Screen name="CharacterDetail" component={CharacterScreen} />
               <Stack.Screen name="StaffDetail" component={StaffScreen} />
               <Stack.Screen name="MangaReader" component={MangaReaderScreen} />
+              <Stack.Screen name="NovelReader" component={NovelReaderScreen} />
             </>
           )}
         </Stack.Navigator>

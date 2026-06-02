@@ -1,39 +1,28 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, Settings, ChevronLeft, ChevronRight, Maximize, Smartphone } from 'lucide-react-native';
+import { ArrowLeft, ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
 import { useTheme } from '../../../context/ThemeContext';
-import { spacing, typography, radius } from '../../../styles/theme';
-import type { ReaderSettings } from '../MangaReader.types';
+import { spacing, typography } from '../../../styles/theme';
 
-interface ReaderControlsProps {
+interface NovelControlsProps {
   title: string;
   chapterTitle: string;
-  currentPage: number;
-  totalPages: number;
-  settings: ReaderSettings;
-  onUpdateSetting: (key: keyof ReaderSettings, value: any) => void;
   onNextChapter: () => void;
   onPrevChapter: () => void;
+  onOpenSettings: () => void;
 }
 
-const ReaderControls: React.FC<ReaderControlsProps> = ({
+const NovelControls: React.FC<NovelControlsProps> = ({
   title,
   chapterTitle,
-  currentPage,
-  totalPages,
-  settings,
-  onUpdateSetting,
   onNextChapter,
   onPrevChapter,
+  onOpenSettings,
 }) => {
   const { theme } = useTheme();
   const navigation = useNavigation();
-
-  const toggleDirection = () => {
-    onUpdateSetting('direction', settings.direction === 'vertical' ? 'horizontal' : 'vertical');
-  };
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
@@ -45,15 +34,11 @@ const ReaderControls: React.FC<ReaderControlsProps> = ({
               <ArrowLeft color="#fff" size={24} />
             </TouchableOpacity>
             <View style={styles.titleContainer}>
-              <Text style={styles.mangaTitle} numberOfLines={1}>{title}</Text>
+              <Text style={styles.novelTitle} numberOfLines={1}>{title}</Text>
               <Text style={styles.chapterTitle} numberOfLines={1}>{chapterTitle}</Text>
             </View>
-            <TouchableOpacity style={styles.iconBtn} onPress={toggleDirection}>
-              {settings.direction === 'vertical' ? (
-                <Smartphone color="#fff" size={24} />
-              ) : (
-                <Maximize color="#fff" size={24} />
-              )}
+            <TouchableOpacity style={styles.iconBtn} onPress={onOpenSettings}>
+              <Settings color="#fff" size={24} />
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -70,12 +55,6 @@ const ReaderControls: React.FC<ReaderControlsProps> = ({
               <Text style={styles.navText}>Prev</Text>
             </TouchableOpacity>
             
-            <View style={styles.pageInfo}>
-              <Text style={styles.pageText}>
-                {currentPage} / {totalPages}
-              </Text>
-            </View>
-
             <TouchableOpacity onPress={onNextChapter} style={styles.navBtn}>
               <Text style={styles.navText}>Next</Text>
               <ChevronRight color="#fff" size={24} />
@@ -104,7 +83,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing['2'],
   },
-  mangaTitle: {
+  novelTitle: {
     color: '#fff',
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.bold,
@@ -133,17 +112,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeight.medium,
     marginHorizontal: spacing['1'],
   },
-  pageInfo: {
-    paddingHorizontal: spacing['4'],
-    paddingVertical: spacing['1'],
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: radius.full,
-  },
-  pageText: {
-    color: '#fff',
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.bold,
-  }
 });
 
-export default ReaderControls;
+export default NovelControls;
