@@ -45,17 +45,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // ---- Refresh token ----
   const refreshAccessToken = async () => {
     try {
-      const refreshToken = (global as any).localStorage?.getItem('refreshToken');
-      if (!refreshToken) return;
-
-      const response = await authService.refreshToken(refreshToken);
-      const newAccessToken = response.data.access;
-      const newRefreshToken = response.data.refresh;
+      const response = await authService.refreshToken();
+      const newAccessToken = response.data.accessToken;
 
       (global as any).localStorage?.setItem('authToken', newAccessToken);
-      if (newRefreshToken) {
-        (global as any).localStorage?.setItem('refreshToken', newRefreshToken);
-      }
     } catch (error) {
       console.error('Failed to refresh token:', error);
       authLogic.logout();

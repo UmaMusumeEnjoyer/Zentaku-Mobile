@@ -55,10 +55,10 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, style }) => {
 
   const s = makeStyles(theme);
 
-  // Progress ratio (chỉ hiển thị nếu có episode_progress)
+  // Progress ratio (chỉ hiển thị nếu có progress)
   const progressRatio =
-    anime.episode_progress != null && anime.episodes && anime.episodes > 0
-      ? Math.min(anime.episode_progress / anime.episodes, 1)
+    anime.progress != null && anime.episodes && anime.episodes > 0
+      ? Math.min(anime.progress / anime.episodes, 1)
       : null;
 
   const handlePress = useCallback(() => {
@@ -71,9 +71,9 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, style }) => {
     <TouchableOpacity style={[s.card, style]} activeOpacity={0.85} onPress={handlePress}>
       {/* ---- Thumbnail ---- */}
       <View style={s.imageWrapper}>
-        {anime.cover_image ? (
+        {anime.coverImage?.large || anime.coverImage?.medium ? (
           <Image
-            source={{ uri: anime.cover_image }}
+            source={{ uri: (anime.coverImage.large || anime.coverImage.medium) as string }}
             style={s.image}
             resizeMode="cover"
           />
@@ -106,16 +106,16 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, style }) => {
         )}
 
         {/* ---- Next airing ---- */}
-        {anime.next_airing_ep != null && (
+        {anime.nextAiringEpisode != null && (
           <Text style={s.nextAiring} numberOfLines={1}>
-            Next EP {anime.next_airing_ep.episode}
+            Next EP {anime.nextAiringEpisode.episode}
           </Text>
         )}
 
         {/* ---- Current progress text ---- */}
-        {anime.episode_progress != null && (
+        {anime.progress != null && (
           <Text style={s.progressText}>
-            {anime.episode_progress}/{anime.episodes ?? '?'} EP
+            {anime.progress}/{anime.episodes ?? '?'} EP
           </Text>
         )}
       </View>
