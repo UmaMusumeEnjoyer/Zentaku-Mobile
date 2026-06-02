@@ -19,7 +19,7 @@ export type AuthStackParamList = {
 export type MainStackParamList = {
   Home: undefined;
   Browse: undefined;
-  AnimeSearch: undefined;
+  AnimeSearch: { initialFilters?: Record<string, string> } | undefined;
   AnimeList: undefined;
   /** Watch-along/social watch screen */
   WatchAlong: undefined;

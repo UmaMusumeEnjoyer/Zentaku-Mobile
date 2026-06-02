@@ -76,7 +76,7 @@ const mapAnimeData = (rawItem: any): AnimeType => ({
   next_airing_ep: (rawItem.nextAiringEpisode || rawItem.next_airing_ep) ?? null,
 });
 
-const AnimeSearchScreen: React.FC<Props> = () => {
+const AnimeSearchScreen: React.FC<Props> = ({ route }) => {
   const { theme } = useTheme();
   const { width: screenWidth } = useWindowDimensions();
   const { t } = useTranslation(['AnimeSearch', 'AnimeSection', 'common']);
@@ -169,7 +169,19 @@ const AnimeSearchScreen: React.FC<Props> = () => {
   }, [mode, trendingData.length, loading]);
 
   useEffect(() => {
-    const restoreSession = async () => {
+    const initSearch = async () => {
+      // 1. Kiểm tra nếu có initialFilters được truyền từ trang khác (vd: BrowseScreen)
+      const initialFilters = route.params?.initialFilters;
+      if (initialFilters) {
+        const mergedFilters = { ...defaultFilters, ...initialFilters } as AnimeFilters;
+        setFilters(mergedFilters);
+        setQuery(initialFilters.keyword || '');
+        // Gọi search ngay lập tức
+        handleSearch(initialFilters.keyword || '', mergedFilters);
+        return;
+      }
+
+      // 2. Nếu không có initialFilters, restore session từ AsyncStorage
       try {
         const savedState = await AsyncStorage.getItem(SESSION_KEY);
         if (!savedState) return;
@@ -192,8 +204,8 @@ const AnimeSearchScreen: React.FC<Props> = () => {
       }
     };
 
-    restoreSession();
-  }, [t]);
+    initSearch();
+  }, [t, route.params?.initialFilters]);
 
   useEffect(() => {
     saveSession();
