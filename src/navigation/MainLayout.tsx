@@ -26,6 +26,7 @@ import AnimeListScreen from '../screens/AnimeListScreen';
 import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AnimeSearchScreen from '../screens/AnimeSearchScreen';
+import ScheduleScreen from '../screens/ScheduleScreen';
 import WatchAlongScreen from '../screens/WatchAlongScreen';
 import ChatAppScreen from '../screens/ChatAppScreen';
 import BottomNav from '../components/Navigation/Navigation';
@@ -60,6 +61,7 @@ const MainLayout: React.FC = () => {
         />
         <Inner.Screen name="Browse" component={BrowseScreen} />
         <Inner.Screen name="AnimeSearch" component={AnimeSearchScreen} />
+        <Inner.Screen name="Schedule" component={ScheduleScreen} />
         <Inner.Screen name="WatchAlong" component={WatchAlongScreen} />
         <Inner.Screen name="ChatApp" component={ChatAppScreen} />
         {/* AnimeList và Profile chỉ hữu ích khi đã đăng nhập,

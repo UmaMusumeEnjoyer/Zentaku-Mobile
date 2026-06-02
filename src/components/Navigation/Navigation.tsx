@@ -21,6 +21,7 @@ import {
   Moon, 
   Sun, 
   Globe, 
+  Calendar,
   X 
 } from 'lucide-react-native';
 
@@ -92,6 +93,14 @@ const BottomNav: React.FC = () => {
           <Compass color={isActive('Browse') ? theme.primary : theme.textSecondary} size={24} />
           <Text style={[styles.navText, isActive('Browse') && styles.navTextActive]}>
             {t('Header:navigation.browse')}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Nút Schedule */}
+        <TouchableOpacity style={styles.navItem} onPress={() => navigateToMainScreen('Schedule')}>
+          <Calendar color={isActive('Schedule') ? theme.primary : theme.textSecondary} size={24} />
+          <Text style={[styles.navText, isActive('Schedule') && styles.navTextActive]}>
+            Lịch
           </Text>
         </TouchableOpacity>
 

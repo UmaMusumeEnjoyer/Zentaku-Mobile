@@ -21,6 +21,7 @@ export type MainStackParamList = {
   Browse: undefined;
   AnimeSearch: { initialFilters?: Record<string, string> } | undefined;
   AnimeList: undefined;
+  Schedule: undefined;
   /** Watch-along/social watch screen */
   WatchAlong: { roomId?: string } | undefined;
   /** Chat screen converted from web ChatApp */
