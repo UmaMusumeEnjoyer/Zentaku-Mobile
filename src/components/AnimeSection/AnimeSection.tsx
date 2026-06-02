@@ -99,7 +99,7 @@ const AnimeSection: React.FC<NativeAnimeSectionProps> = ({
         contentContainerStyle={s.scrollContent}
       >
         {displayedList.map((anime) => (
-          <AnimeCard key={anime.id ?? anime.name_romaji} anime={anime} />
+          <AnimeCard key={anime.id ?? anime.title?.romaji} anime={anime} />
         ))}
       </ScrollView>
     </View>
