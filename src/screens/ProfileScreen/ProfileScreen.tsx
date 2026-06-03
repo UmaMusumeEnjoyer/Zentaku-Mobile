@@ -47,6 +47,7 @@ import CreateListModal from './components/CreateListModal';
 import CustomListCard from './components/CustomListCard';
 import AnimeCard from '../../components/AnimeCard/AnimeCard';
 import Header from '../../components/Header/Header';
+import ProfileSkeleton from './ProfileSkeleton';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - spacing['4'] * 2 - spacing['3'] * 2) / 3;
@@ -106,8 +107,6 @@ const ProfileScreen: React.FC = () => {
       syncAuthUser(userProfile);
     }
   }, [isOwnProfile, userProfile, syncAuthUser]);
-
-import ProfileSkeleton from './ProfileSkeleton';
 
   // ── Loading State ──
   if (profileLoading) {
