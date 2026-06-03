@@ -11,6 +11,7 @@ import createStyles from './WatchAlongScreen.style';
 import { useAuth } from '../../context/AuthContext';
 import { useWatchAlongLogic } from '@umamusumeenjoyer/shared-logic';
 import type { MainStackParamList } from '../../navigation/types';
+import WatchAlongSkeleton from './WatchAlongSkeleton';
 
 type WatchAlongScreenRouteProp = RouteProp<MainStackParamList, 'WatchAlong'>;
 
@@ -119,12 +120,7 @@ const WatchAlongScreen: React.FC = () => {
 
   // 2. Render Loading
   if (isLoading) {
-    return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }] as StyleProp<ViewStyle>}>
-        <ActivityIndicator size="large" color={theme.primary} />
-        <Text style={styles.loadingText}>{t('common:loading', 'Loading room...')}</Text>
-      </View>
-    );
+    return <WatchAlongSkeleton />;
   }
 
   // 3. Render Error

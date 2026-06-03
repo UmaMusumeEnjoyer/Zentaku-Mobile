@@ -21,6 +21,7 @@ import { typography, spacing, radius } from '../../styles/theme';
 import type { ThemeTokens } from '../../styles/theme';
 import type { RootStackParamList } from '../../navigation/types';
 import { ENV } from '../../utils/env';
+import AnimeWatchSkeleton from './AnimeWatchSkeleton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AnimeWatch'>;
 
@@ -212,16 +213,13 @@ const AnimeWatchScreen: React.FC<Props> = ({ route, navigation }) => {
 
   if (loading || loadingEpisodes) {
     return (
-      <SafeAreaView style={s.safeArea}>
+      <>
         <StatusBar
           barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor={theme.bgApp}
         />
-        <View style={s.centerContainer}>
-          <ActivityIndicator size="large" color={theme.primary} />
-          <Text style={s.loadingText}>{t('common:loading')}</Text>
-        </View>
-      </SafeAreaView>
+        <AnimeWatchSkeleton />
+      </>
     );
   }
 

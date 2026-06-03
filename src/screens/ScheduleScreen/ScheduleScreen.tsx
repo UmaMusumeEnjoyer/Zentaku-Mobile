@@ -12,6 +12,8 @@ import { useTheme } from '../../context/ThemeContext';
 import { typography, spacing, radius } from '../../styles/theme';
 import type { ThemeTokens } from '../../styles/theme';
 
+import ScheduleSkeleton from './ScheduleSkeleton';
+
 const ScheduleScreen: React.FC = () => {
   const { theme, themeMode } = useTheme();
   const s = makeStyles(theme);
@@ -89,9 +91,7 @@ const ScheduleScreen: React.FC = () => {
       {/* Loading or Events List */}
       <View style={s.listContainer}>
         {isLoading ? (
-          <View style={s.centerBox}>
-            <ActivityIndicator size="large" color={theme.primary} />
-          </View>
+          <ScheduleSkeleton />
         ) : error ? (
           <View style={s.centerBox}>
             <Text style={{ color: theme.statusError }}>{error.message}</Text>

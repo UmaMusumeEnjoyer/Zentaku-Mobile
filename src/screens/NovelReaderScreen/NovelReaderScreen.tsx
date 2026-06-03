@@ -5,6 +5,7 @@ import NovelControls from './components/NovelControls';
 import ReaderSettingsMenu from './components/ReaderSettingsMenu';
 import { useTheme } from '../../context/ThemeContext';
 import { spacing } from '../../styles/theme';
+import NovelReaderSkeleton from './NovelReaderSkeleton';
 
 const NovelReaderScreen: React.FC = () => {
   const {
@@ -54,11 +55,7 @@ const NovelReaderScreen: React.FC = () => {
   }, [viewSettings]);
 
   if (isLoading && !chapterData) {
-    return (
-      <View style={[styles.center, readerStyles.container]}>
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
-    );
+    return <NovelReaderSkeleton />;
   }
 
   if (error) {

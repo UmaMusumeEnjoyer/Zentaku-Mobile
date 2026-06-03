@@ -107,19 +107,18 @@ const ProfileScreen: React.FC = () => {
     }
   }, [isOwnProfile, userProfile, syncAuthUser]);
 
+import ProfileSkeleton from './ProfileSkeleton';
+
   // ── Loading State ──
   if (profileLoading) {
     return (
-      <SafeAreaView style={s.safeArea}>
+      <>
         <StatusBar
           barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor={theme.bgApp}
         />
-        <View style={s.centerContainer}>
-          <ActivityIndicator size="large" color={theme.primary} />
-          <Text style={s.loadingText}>{t('loading') || 'Loading...'}</Text>
-        </View>
-      </SafeAreaView>
+        <ProfileSkeleton />
+      </>
     );
   }
 

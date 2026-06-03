@@ -14,6 +14,8 @@ import type { RootStackParamList } from '../../navigation/types';
 type NewsDetailRouteProp = NativeStackScreenProps<RootStackParamList, 'NewsDetail'>['route'];
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
+import NewsDetailSkeleton from './NewsDetailSkeleton';
+
 const NewsDetailScreen: React.FC = () => {
   const route = useRoute<NewsDetailRouteProp>();
   const navigation = useNavigation<NavigationProp>();
@@ -23,7 +25,11 @@ const NewsDetailScreen: React.FC = () => {
   const { t } = useTranslation(['NewsDetailPage']);
   const s = makeStyles(theme);
 
-  const { newsItem, contentParagraphs, isNotFound } = useNewsDetailLogic(id);
+  const { newsItem, contentParagraphs, isNotFound, isLoading } = useNewsDetailLogic(id);
+
+  if (isLoading) {
+    return <NewsDetailSkeleton />;
+  }
 
   if (isNotFound || !newsItem) {
     return (

@@ -63,6 +63,8 @@ const Spoiler: React.FC<SpoilerProps & { theme: ThemeTokens }> = ({ children, th
   return <Text style={{ color: theme.textSecondary }}>{children}</Text>;
 };
 
+import CharacterSkeleton from './CharacterSkeleton';
+
 // ── Main Screen ──
 const CharacterScreen: React.FC<Props> = ({ route, navigation }) => {
   const { id } = route.params;
@@ -98,16 +100,13 @@ const CharacterScreen: React.FC<Props> = ({ route, navigation }) => {
   // ── Loading State ──
   if (loading) {
     return (
-      <SafeAreaView style={s.safeArea}>
+      <>
         <StatusBar
           barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor={theme.bgApp}
         />
-        <View style={s.centerContainer}>
-          <ActivityIndicator size="large" color={theme.primary} />
-          <Text style={s.loadingText}>{t('common:loading')}</Text>
-        </View>
-      </SafeAreaView>
+        <CharacterSkeleton />
+      </>
     );
   }
 

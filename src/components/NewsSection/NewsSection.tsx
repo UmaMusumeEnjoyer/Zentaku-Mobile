@@ -24,13 +24,19 @@ interface NewsSectionProps {
   isLoading?: boolean;
 }
 
+import NewsSectionSkeleton from '../Skeleton/NewsSectionSkeleton';
+
 const NewsSection: React.FC<NewsSectionProps> = ({ newsList, isLoading }) => {
   const { theme } = useTheme();
   const { t } = useTranslation(['HomePage']);
   const navigation = useNavigation<NavigationProp>();
   const s = makeStyles(theme);
 
-  if (!isLoading && (!newsList || newsList.length === 0)) {
+  if (isLoading) {
+    return <NewsSectionSkeleton />;
+  }
+
+  if (!newsList || newsList.length === 0) {
     return null; // Do not render if empty
   }
 
@@ -54,22 +60,16 @@ const NewsSection: React.FC<NewsSectionProps> = ({ newsList, isLoading }) => {
         <Text style={s.sectionTitle}>{t('HomePage:sections.news', 'Tin tức mới nhất')}</Text>
       </View>
       
-      {isLoading ? (
-        <View style={s.loadingContainer}>
-          <Text style={{ color: theme.textSecondary }}>Loading news...</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={newsList}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={renderItem}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={s.listContent}
-          snapToInterval={280 + spacing['4']} // card width + margin
-          decelerationRate="fast"
-        />
-      )}
+      <FlatList
+        data={newsList}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={renderItem}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={s.listContent}
+        snapToInterval={280 + spacing['4']} // card width + margin
+        decelerationRate="fast"
+      />
     </View>
   );
 };

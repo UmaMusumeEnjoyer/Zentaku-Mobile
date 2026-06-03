@@ -5,6 +5,7 @@ import VerticalReader from './components/VerticalReader';
 import HorizontalReader from './components/HorizontalReader';
 import ReaderControls from './components/ReaderControls';
 import { useTheme } from '../../context/ThemeContext';
+import MangaReaderSkeleton from './MangaReaderSkeleton';
 
 const MangaReaderScreen: React.FC = () => {
   const {
@@ -42,12 +43,7 @@ const MangaReaderScreen: React.FC = () => {
   };
 
   if (isLoading && pages.length === 0) {
-    return (
-      <View style={[styles.center, { backgroundColor: '#000' }]}>
-        <StatusBar barStyle="light-content" backgroundColor="#000" />
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
-    );
+    return <MangaReaderSkeleton />;
   }
 
   if (error) {

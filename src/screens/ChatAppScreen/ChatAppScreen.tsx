@@ -16,6 +16,8 @@ import createStyles from './ChatAppScreen.style';
 import { useChatMessenger } from './useChatApp';
 import type { Message, ChatRoom, User } from './ChatAppScreen.types';
 
+import ChatAppSkeleton from './ChatAppSkeleton';
+
 const ChatAppScreen: React.FC = () => {
   const { theme } = useTheme();
   const styles = createStyles(theme);
@@ -39,11 +41,7 @@ const ChatAppScreen: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
-    );
+    return <ChatAppSkeleton />;
   }
 
   if (error || !allRooms || !activeRoom) {

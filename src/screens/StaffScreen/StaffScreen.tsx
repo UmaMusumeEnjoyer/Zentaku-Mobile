@@ -74,6 +74,8 @@ const DescriptionRenderer: React.FC<DescriptionRendererProps> = ({ text, theme }
   );
 };
 
+import StaffSkeleton from './StaffSkeleton';
+
 // ── Main Screen ──
 const StaffScreen: React.FC<Props> = ({ route, navigation }) => {
   const { id } = route.params;
@@ -124,16 +126,13 @@ const StaffScreen: React.FC<Props> = ({ route, navigation }) => {
   // ── Loading State ──
   if (loading) {
     return (
-      <SafeAreaView style={s.safeArea}>
+      <>
         <StatusBar
           barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor={theme.bgApp}
         />
-        <View style={s.centerContainer}>
-          <ActivityIndicator size="large" color={theme.primary} />
-          <Text style={s.loadingText}>{t('common:loading')}</Text>
-        </View>
-      </SafeAreaView>
+        <StaffSkeleton />
+      </>
     );
   }
 
