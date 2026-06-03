@@ -5,6 +5,7 @@
  * - 2 chế độ: 'login' | 'signup', toggle animation bằng Animated
  * - Dùng authService từ shared-logic trực tiếp (thay form event handler)
  * - Dùng useTranslation(['Auth']) — cùng namespace với webFE
+ * - Client-side validation matching backend rules (onBlur + onSubmit)
  */
 import React, { useRef, useState } from 'react';
 import {
@@ -23,7 +24,19 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { authService } from '@umamusumeenjoyer/shared-logic';
+import {
+  authService,
+  type ValidationErrors,
+  validateLoginEmail,
+  validateLoginPassword,
+  validateLoginForm,
+  validateRegisterUsername,
+  validateRegisterEmail,
+  validateRegisterPassword,
+  validateRegisterConfirmPassword,
+  validateRegisterForm,
+  hasValidationErrors,
+} from '@umamusumeenjoyer/shared-logic';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { typography, spacing, radius } from '../styles/theme';
@@ -74,12 +87,18 @@ const AuthScreen: React.FC<Props> = ({ navigation, route }) => {
     confirm_password: '',
   });
 
+  // ---- Validation errors state ----
+  const [loginErrors, setLoginErrors] = useState<ValidationErrors>({});
+  const [registerErrors, setRegisterErrors] = useState<ValidationErrors>({});
+
   const s = makeStyles(theme);
 
   // ---- Toggle mode ----
   const switchMode = (next: AuthMode) => {
     if (next === mode) return;
     setErrorMsg('');
+    setLoginErrors({});
+    setRegisterErrors({});
     Animated.timing(slideAnim, {
       toValue: next === 'signup' ? 1 : 0,
       duration: 300,
@@ -87,12 +106,58 @@ const AuthScreen: React.FC<Props> = ({ navigation, route }) => {
     }).start(() => setMode(next));
   };
 
+  // ---- Login field change with error clearing ----
+  const handleLoginFieldChange = (field: keyof LoginForm, value: string) => {
+    setLoginForm((f) => ({ ...f, [field]: value }));
+    if (loginErrors[field]) {
+      setLoginErrors((prev) => ({ ...prev, [field]: null }));
+    }
+  };
+
+  // ---- Register field change with error clearing ----
+  const handleRegisterFieldChange = (field: keyof RegisterForm, value: string) => {
+    setRegisterForm((f) => ({ ...f, [field]: value }));
+    if (registerErrors[field]) {
+      setRegisterErrors((prev) => ({ ...prev, [field]: null }));
+    }
+  };
+
+  // ---- Login blur handlers ----
+  const handleLoginEmailBlur = () => {
+    setLoginErrors((prev) => ({ ...prev, email: validateLoginEmail(loginForm.email) }));
+  };
+
+  const handleLoginPasswordBlur = () => {
+    setLoginErrors((prev) => ({ ...prev, password: validateLoginPassword(loginForm.password) }));
+  };
+
+  // ---- Register blur handlers ----
+  const handleRegisterEmailBlur = () => {
+    setRegisterErrors((prev) => ({ ...prev, email: validateRegisterEmail(registerForm.email) }));
+  };
+
+  const handleRegisterUsernameBlur = () => {
+    setRegisterErrors((prev) => ({ ...prev, username: validateRegisterUsername(registerForm.username) }));
+  };
+
+  const handleRegisterPasswordBlur = () => {
+    setRegisterErrors((prev) => ({ ...prev, password: validateRegisterPassword(registerForm.password) }));
+  };
+
+  const handleRegisterConfirmPasswordBlur = () => {
+    setRegisterErrors((prev) => ({
+      ...prev,
+      confirm_password: validateRegisterConfirmPassword(registerForm.password, registerForm.confirm_password),
+    }));
+  };
+
   // ---- Login submit ----
   const handleLoginSubmit = async () => {
-    if (!loginForm.email || !loginForm.password) {
-      setErrorMsg('Please fill in all fields.');
-      return;
-    }
+    // Run full form validation
+    const errors = validateLoginForm(loginForm);
+    setLoginErrors(errors);
+    if (hasValidationErrors(errors)) return;
+
     setIsLoading(true);
     setErrorMsg('');
     try {
@@ -111,14 +176,11 @@ const AuthScreen: React.FC<Props> = ({ navigation, route }) => {
 
   // ---- Register submit ----
   const handleRegisterSubmit = async () => {
-    if (!registerForm.email || !registerForm.username || !registerForm.password) {
-      setErrorMsg('Please fill in all fields.');
-      return;
-    }
-    if (registerForm.password !== registerForm.confirm_password) {
-      setErrorMsg('Passwords do not match!');
-      return;
-    }
+    // Run full form validation
+    const errors = validateRegisterForm(registerForm);
+    setRegisterErrors(errors);
+    if (hasValidationErrors(errors)) return;
+
     setIsLoading(true);
     setErrorMsg('');
     try {
@@ -201,23 +263,34 @@ const AuthScreen: React.FC<Props> = ({ navigation, route }) => {
                 <Text style={s.formTitle}>{t('Auth:signin.title')}</Text>
                 <Text style={s.dividerText}>{t('Auth:signin.divider')}</Text>
 
+                {/* Email */}
                 <TextInput
-                  style={s.input}
+                  style={[s.input, loginErrors.email ? s.inputErrorStyle : null]}
                   placeholder={t('Auth:placeholders.email')}
                   placeholderTextColor={theme.textDisabled}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   value={loginForm.email}
-                  onChangeText={(v) => setLoginForm((f) => ({ ...f, email: v }))}
+                  onChangeText={(v) => handleLoginFieldChange('email', v)}
+                  onBlur={handleLoginEmailBlur}
                 />
+                {loginErrors.email && (
+                  <Text style={s.fieldErrorText}>{t(loginErrors.email)}</Text>
+                )}
+
+                {/* Password */}
                 <TextInput
-                  style={s.input}
+                  style={[s.input, loginErrors.password ? s.inputErrorStyle : null]}
                   placeholder={t('Auth:placeholders.password')}
                   placeholderTextColor={theme.textDisabled}
                   secureTextEntry
                   value={loginForm.password}
-                  onChangeText={(v) => setLoginForm((f) => ({ ...f, password: v }))}
+                  onChangeText={(v) => handleLoginFieldChange('password', v)}
+                  onBlur={handleLoginPasswordBlur}
                 />
+                {loginErrors.password && (
+                  <Text style={s.fieldErrorText}>{t(loginErrors.password)}</Text>
+                )}
 
                 <TouchableOpacity
                   style={[s.submitBtn, isLoading && s.submitBtnDisabled]}
@@ -247,39 +320,62 @@ const AuthScreen: React.FC<Props> = ({ navigation, route }) => {
               <View>
                 <Text style={s.formTitle}>{t('Auth:signup.title')}</Text>
 
+                {/* Email */}
                 <TextInput
-                  style={s.input}
+                  style={[s.input, registerErrors.email ? s.inputErrorStyle : null]}
                   placeholder={t('Auth:placeholders.email')}
                   placeholderTextColor={theme.textDisabled}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   value={registerForm.email}
-                  onChangeText={(v) => setRegisterForm((f) => ({ ...f, email: v }))}
+                  onChangeText={(v) => handleRegisterFieldChange('email', v)}
+                  onBlur={handleRegisterEmailBlur}
                 />
+                {registerErrors.email && (
+                  <Text style={s.fieldErrorText}>{t(registerErrors.email)}</Text>
+                )}
+
+                {/* Username */}
                 <TextInput
-                  style={s.input}
+                  style={[s.input, registerErrors.username ? s.inputErrorStyle : null]}
                   placeholder={t('Auth:placeholders.username')}
                   placeholderTextColor={theme.textDisabled}
                   autoCapitalize="none"
                   value={registerForm.username}
-                  onChangeText={(v) => setRegisterForm((f) => ({ ...f, username: v }))}
+                  onChangeText={(v) => handleRegisterFieldChange('username', v)}
+                  onBlur={handleRegisterUsernameBlur}
                 />
+                {registerErrors.username && (
+                  <Text style={s.fieldErrorText}>{t(registerErrors.username)}</Text>
+                )}
+
+                {/* Password */}
                 <TextInput
-                  style={s.input}
+                  style={[s.input, registerErrors.password ? s.inputErrorStyle : null]}
                   placeholder={t('Auth:placeholders.password')}
                   placeholderTextColor={theme.textDisabled}
                   secureTextEntry
                   value={registerForm.password}
-                  onChangeText={(v) => setRegisterForm((f) => ({ ...f, password: v }))}
+                  onChangeText={(v) => handleRegisterFieldChange('password', v)}
+                  onBlur={handleRegisterPasswordBlur}
                 />
+                {registerErrors.password && (
+                  <Text style={s.fieldErrorText}>{t(registerErrors.password)}</Text>
+                )}
+
+                {/* Confirm Password */}
                 <TextInput
-                  style={s.input}
+                  style={[s.input, registerErrors.confirm_password ? s.inputErrorStyle : null]}
                   placeholder={t('Auth:placeholders.confirm_password')}
                   placeholderTextColor={theme.textDisabled}
                   secureTextEntry
                   value={registerForm.confirm_password}
-                  onChangeText={(v) => setRegisterForm((f) => ({ ...f, confirm_password: v }))}
+                  onChangeText={(v) => handleRegisterFieldChange('confirm_password', v)}
+                  onBlur={handleRegisterConfirmPasswordBlur}
                 />
+                {registerErrors.confirm_password && (
+                  <Text style={s.fieldErrorText}>{t(registerErrors.confirm_password)}</Text>
+                )}
 
                 <Text style={s.termsText}>{t('Auth:signup.terms')}</Text>
 
@@ -414,6 +510,21 @@ const makeStyles = (theme: ThemeTokens) =>
       fontSize: typography.fontSize.base,
       color: theme.textPrimary,
       marginBottom: spacing['3'],
+    },
+
+    // Input with validation error — red border
+    inputErrorStyle: {
+      borderColor: '#ef4444',
+      borderWidth: 1.5,
+      marginBottom: spacing['1'],
+    },
+
+    // Field-level error text
+    fieldErrorText: {
+      color: '#ef4444',
+      fontSize: typography.fontSize.xs,
+      marginBottom: spacing['2'],
+      paddingLeft: spacing['1'],
     },
 
     // Submit
