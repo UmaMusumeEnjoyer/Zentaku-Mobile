@@ -13,11 +13,12 @@
 import './src/i18n/config';
 
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { initSharedLogic } from '@umamusumeenjoyer/shared-logic';
+import { initSharedLogic, useNotificationSocket } from '@umamusumeenjoyer/shared-logic';
+import type { NotificationItem } from '@umamusumeenjoyer/shared-logic';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
@@ -130,6 +131,25 @@ const RootNavigator: React.FC = () => {
   );
 };
 
+// Component to initialize notification socket listener for mobile
+const NotificationSetup: React.FC = () => {
+  const { user } = useAuth();
+
+  useNotificationSocket(
+    user
+      ? {
+          onNewNotification: (notification: NotificationItem) => {
+            Alert.alert(notification.title, notification.body || '', [
+              { text: 'OK', style: 'default' },
+            ]);
+          },
+        }
+      : undefined
+  );
+
+  return null;
+};
+
 // ----------------------------------------------------------------
 // HydrationGate — Đảm bảo localStorage shim được populate trước render
 // ----------------------------------------------------------------
@@ -163,6 +183,7 @@ export default function App() {
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
+              <NotificationSetup />
               <RootNavigator />
             </AuthProvider>
           </LanguageProvider>
