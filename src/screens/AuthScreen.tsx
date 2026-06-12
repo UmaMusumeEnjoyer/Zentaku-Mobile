@@ -191,7 +191,7 @@ const AuthScreen: React.FC<Props> = ({ navigation, route }) => {
         confirmPassword: registerForm.confirm_password,
       });
       setErrorMsg((response as any)?.message ?? (response.data as any)?.message ?? 'Registration successful! Please verify your email.');
-      switchMode('login');
+      navigation.navigate('VerifyEmail');
     } catch (err: any) {
       const data = err?.response?.data;
       if (data?.details) {
@@ -305,7 +305,7 @@ const AuthScreen: React.FC<Props> = ({ navigation, route }) => {
                   )}
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
                   <Text style={[s.forgotText, { color: theme.primary }]}>
                     {t('Auth:signin.forgot_password')}
                   </Text>

@@ -30,6 +30,7 @@ import ScheduleScreen from '../screens/ScheduleScreen';
 import WatchAlongScreen from '../screens/WatchAlongScreen';
 import ChatAppScreen from '../screens/ChatAppScreen';
 import BottomNav from '../components/Navigation/Navigation';
+import FloatingChat from '../components/FloatingChat/FloatingChat';
 import { useAuth } from '../context/AuthContext';
 import HomeLoginScreen from '../screens/HomeScreen/HomeLoginScreen';
 
@@ -73,6 +74,7 @@ const MainLayout: React.FC = () => {
 
       {/* BottomNav — absolute, hiển thị trên tất cả screen bên trong */}
       <BottomNav />
+      <FloatingChat />
     </View>
   );
 };

@@ -37,6 +37,8 @@ import StaffScreen from './src/screens/StaffScreen';
 import MangaReaderScreen from './src/screens/MangaReaderScreen';
 import NovelReaderScreen from './src/screens/NovelReaderScreen';
 import NewsDetailScreen from './src/screens/NewsDetailScreen';
+import ResetPasswordScreen from './src/screens/ResetPasswordScreen/ResetPasswordScreen';
+import VerifyEmailScreen from './src/screens/VerifyEmailScreen/VerifyEmailScreen';
 
 import type { RootStackParamList } from './src/navigation/types';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -103,6 +105,8 @@ const RootNavigator: React.FC = () => {
               <Stack.Screen name="MangaReader" component={MangaReaderScreen} />
               <Stack.Screen name="NovelReader" component={NovelReaderScreen} />
               <Stack.Screen name="NewsDetail" component={NewsDetailScreen} />
+              <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+              <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
             </>
           ) : (
             // ---- Chưa đăng nhập ----
@@ -123,6 +127,8 @@ const RootNavigator: React.FC = () => {
               <Stack.Screen name="MangaReader" component={MangaReaderScreen} />
               <Stack.Screen name="NovelReader" component={NovelReaderScreen} />
               <Stack.Screen name="NewsDetail" component={NewsDetailScreen} />
+              <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} options={{ animation: 'slide_from_right' }} />
             </>
           )}
         </Stack.Navigator>

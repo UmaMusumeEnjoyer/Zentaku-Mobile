@@ -38,6 +38,10 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<MainStackParamList> | undefined;
   /** Màn hình login/signup */
   Login: { initialMode?: 'login' | 'signup' } | undefined;
+  /** Màn hình quên mật khẩu */
+  ResetPassword: { email?: string } | undefined;
+  /** Màn hình xác thực email */
+  VerifyEmail: { email?: string } | undefined;
   /** Màn hình chi tiết anime */
   AnimeDetail: { id: string };
   /** Màn hình xem anime */
