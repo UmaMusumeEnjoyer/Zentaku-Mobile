@@ -13,7 +13,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: 'pbl5_mobileFE',
   slug: 'pbl5_mobileFE',
   version: '1.0.0',
-  orientation: 'portrait',
+  orientation: 'default',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic', // supports light/dark
   newArchEnabled: true,
