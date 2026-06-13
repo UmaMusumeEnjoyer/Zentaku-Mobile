@@ -132,52 +132,67 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               </View>
             </View>
 
-            {/* First Name */}
+            {/* Display Name */}
             <View style={s.formGroup}>
               <Text style={s.formLabel}>
-                {t('fields.first_name.label')}
+                {t('fields.display_name.label', 'Display Name')}
               </Text>
               <TextInput
                 style={s.formInput}
-                value={formData.first_name}
+                value={formData.displayName}
                 onChangeText={(text) =>
-                  handleInputChange('first_name', text)
+                  handleInputChange('displayName', text)
                 }
                 placeholderTextColor={theme.textDisabled}
               />
             </View>
 
-            {/* Last Name */}
+            {/* Bio */}
             <View style={s.formGroup}>
               <Text style={s.formLabel}>
-                {t('fields.last_name.label')}
+                {t('fields.bio.label', 'Bio')}
+              </Text>
+              <TextInput
+                style={[s.formInput, { minHeight: 80, textAlignVertical: 'top' }]}
+                value={formData.bio}
+                onChangeText={(text) =>
+                  handleInputChange('bio', text)
+                }
+                multiline
+                placeholderTextColor={theme.textDisabled}
+              />
+            </View>
+
+            {/* Location */}
+            <View style={s.formGroup}>
+              <Text style={s.formLabel}>
+                {t('fields.location.label', 'Location')}
               </Text>
               <TextInput
                 style={s.formInput}
-                value={formData.last_name}
+                value={formData.location}
                 onChangeText={(text) =>
-                  handleInputChange('last_name', text)
+                  handleInputChange('location', text)
                 }
                 placeholderTextColor={theme.textDisabled}
               />
             </View>
 
-            {/* Username */}
+            {/* Website */}
             <View style={s.formGroup}>
               <Text style={s.formLabel}>
-                {t('fields.username.label')}
+                {t('fields.website.label', 'Website')}
               </Text>
               <TextInput
                 style={s.formInput}
-                value={formData.username}
+                value={formData.website}
                 onChangeText={(text) =>
-                  handleInputChange('username', text)
+                  handleInputChange('website', text)
                 }
+                autoCapitalize="none"
+                keyboardType="url"
                 placeholderTextColor={theme.textDisabled}
               />
-              <Text style={s.formHint}>
-                {t('fields.username.hint')}
-              </Text>
             </View>
 
             {/* Footer */}

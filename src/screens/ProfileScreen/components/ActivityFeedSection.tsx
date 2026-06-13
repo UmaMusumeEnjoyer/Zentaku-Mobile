@@ -16,11 +16,13 @@ import type { RootStackParamList } from '../../../navigation/types';
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface ActivityFeedSectionProps {
+  userId?: string | number;
   username: string;
   filterDate?: string;
 }
 
 const ActivityFeedSection: React.FC<ActivityFeedSectionProps> = ({
+  userId,
   username,
   filterDate,
 }) => {
@@ -42,7 +44,7 @@ const ActivityFeedSection: React.FC<ActivityFeedSectionProps> = ({
     getActionIconChar,
     getActionDescription,
     getTargetName,
-  } = useActivityFeed({ username, filterDate, t });
+  } = useActivityFeed({ userId, username, filterDate, t });
 
   // Map action class strings to style objects
   const getIconStyle = (actionTypeClass: string) => {

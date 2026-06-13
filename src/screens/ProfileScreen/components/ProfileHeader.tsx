@@ -10,6 +10,7 @@ import { Clock } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../context/ThemeContext';
 import { createStyles } from '../ProfileScreen.style';
+import { ENV } from '../../../utils/env';
 import type { UserProfile_ProfilePage } from '@umamusumeenjoyer/shared-logic';
 
 interface ProfileHeaderProps {
@@ -35,19 +36,24 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const { t } = useTranslation('ProfilePagePage');
   const s = createStyles(theme);
 
+  const rawAvatarUrl = getAvatarUrl(userProfile?.avatar || userProfile?.avatar_url);
+  const finalAvatarUrl = rawAvatarUrl.startsWith('/') 
+    ? `${ENV.BACKEND_DOMAIN}${rawAvatarUrl}` 
+    : rawAvatarUrl;
+
   return (
     <View style={s.headerContainer}>
       {/* Avatar */}
       <View style={s.avatarWrapper}>
         <Image
-          source={{ uri: getAvatarUrl(userProfile?.avatar_url) }}
+          source={{ uri: finalAvatarUrl }}
           style={s.avatar}
         />
       </View>
 
       {/* Names */}
       <View style={s.namesContainer}>
-        <Text style={s.displayName}>{getDisplayName()}</Text>
+        <Text style={s.displayName}>{userProfile?.displayName || getDisplayName()}</Text>
         <Text style={s.username}>
           {userProfile?.username || targetUsername}
         </Text>
@@ -65,19 +71,19 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       )}
 
       {/* Joined Date */}
-      {userProfile?.date_joined && (
+      {(userProfile?.createdAt || userProfile?.date_joined) && (
         <View style={s.metaContainer}>
           <Clock size={14} color={theme.textSecondary} />
           <Text style={s.metaText}>
             {t('sidebar.joined', {
-              date: formatDateJoined(userProfile.date_joined),
+              date: formatDateJoined(userProfile?.createdAt || userProfile?.date_joined),
             })}
           </Text>
         </View>
       )}
 
       {/* Separator + Staff Badge */}
-      {userProfile?.is_staff && (
+      {(userProfile?.systemRole === 'admin' || userProfile?.systemRole === 'staff' || userProfile?.is_staff) && (
         <>
           <View style={s.separator} />
           <Text style={s.badgeTitle}>{t('sidebar.badges.title')}</Text>

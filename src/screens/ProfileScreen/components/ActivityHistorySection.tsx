@@ -12,7 +12,7 @@ import { useTheme } from '../../../context/ThemeContext';
 import { createStyles } from '../ProfileScreen.style';
 
 interface ActivityHistorySectionProps {
-  username: string;
+  userId?: string | number;
   onTotalCountChange?: (total: number) => void;
   selectedDate?: string | null;
   onDateSelect?: (date: string) => void;
@@ -36,7 +36,7 @@ const HEATMAP_COLORS_LIGHT: Record<string, string> = {
 };
 
 const ActivityHistorySection: React.FC<ActivityHistorySectionProps> = ({
-  username,
+  userId,
   onTotalCountChange,
   selectedDate,
   onDateSelect,
@@ -46,7 +46,7 @@ const ActivityHistorySection: React.FC<ActivityHistorySectionProps> = ({
   const s = createStyles(theme);
 
   const { heatmapCounts, loading, yearWeeks, getLevelClass } =
-    useActivityHistory(username, onTotalCountChange);
+    useActivityHistory(userId, onTotalCountChange);
 
   const colors =
     themeMode === 'dark' ? HEATMAP_COLORS_DARK : HEATMAP_COLORS_LIGHT;

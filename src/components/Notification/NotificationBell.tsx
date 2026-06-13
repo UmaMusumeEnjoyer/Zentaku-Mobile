@@ -25,7 +25,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ onPress }) => {
       activeOpacity={0.7}
       accessibilityLabel={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
     >
-      <View style={[styles.iconContainer, { backgroundColor: theme.bgCard || 'rgba(255,255,255,0.1)' }]}>
+      <View style={[styles.iconContainer, { backgroundColor: theme.bgPanel || 'rgba(255,255,255,0.1)' }]}>
         <Text style={[styles.icon, { color: theme.textPrimary || '#fff' }]}>🔔</Text>
       </View>
       {unreadCount > 0 && (

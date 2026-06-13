@@ -167,7 +167,7 @@ const ProfileScreen: React.FC = () => {
               </View>
             </View>
             <ActivityHistorySection
-              username={targetUsername}
+              userId={userProfile?.id}
               onTotalCountChange={setTotalContributions}
               selectedDate={selectedDate}
               onDateSelect={handleDateSelect}
@@ -182,6 +182,7 @@ const ProfileScreen: React.FC = () => {
               </View>
             </View>
             <ActivityFeedSection
+              userId={userProfile?.id}
               username={targetUsername}
               filterDate={selectedDate || undefined}
             />

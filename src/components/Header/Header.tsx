@@ -36,8 +36,10 @@ interface HeaderProps {
   transparent?: boolean;
 }
 
-const BACKEND_DOMAIN = process.env.EXPO_PUBLIC_BACKEND_DOMAIN;
-const DEFAULT_AVATAR = process.env.EXPO_PUBLIC_DEFAULT_AVATAR_URL;
+import { ENV } from '../../utils/env';
+
+const BACKEND_DOMAIN = ENV.BACKEND_DOMAIN;
+const DEFAULT_AVATAR = ENV.DEFAULT_AVATAR_URL;
 
 const Header: React.FC<HeaderProps> = ({
   title,
